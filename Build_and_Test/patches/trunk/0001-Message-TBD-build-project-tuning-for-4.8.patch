@@ -1,0 +1,108 @@
+From d4b4b820de0df83e2386819c797f389eb9bf23ab Mon Sep 17 00:00:00 2001
+From: Pavel Chupin <pavel.v.chupin@intel.com>
+Date: Mon, 11 Feb 2013 16:05:13 +0400
+Subject: [PATCH] Message TBD: build project tuning for 4.8
+
+Change-Id: I16cc50ae78e6d56ebf7ab3da395c45e0cd6dd593
+Signed-off-by: Pavel Chupin <pavel.v.chupin@intel.com>
+---
+ Makefile.in  | 8 +++++---
+ configure    | 6 ++++--
+ configure.ac | 2 +-
+ 3 files changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/Makefile.in b/Makefile.in
+index c0c7ee2..144749d 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -191,12 +191,14 @@ endif
+ # Define environment variables for canadian cross build.
+ ifneq ($(cur_host),$(cur_build))
+ CFLAGS_FOR_BUILD ?= $(CFLAGS)
++CXXFLAGS_FOR_BUILD ?= $(CXXFLAGS)
+ LDFLAGS_FOR_BUILD ?= $(LDFLAGS)
+ canadian_build_env := \
+ 	export CC_FOR_BUILD=$(cur_build)-gcc ; \
+ 	export CC=$(cur_build)-gcc ; \
+ 	export CXX=$(cur_build)-g++ ; \
+ 	export CFLAGS="$(CFLAGS_FOR_BUILD)" ; \
++	export CXXFLAGS="$(CXXFLAGS_FOR_BUILD)" ; \
+ 	export LDFLAGS="$(LDFLAGS_FOR_BUILD)" ;
+ 
+ CANADIAN_ROOT := $(PWD)/host-${cur_build}
+@@ -459,7 +461,7 @@ ifeq ($(BUILD_ANDROID_GCC),yes)
+ GCC_CONFIG_ARGS += $(GCC_CONFIG_LIBSTDCXX_V3) --disable-libssp \
+ 	--enable-threads --disable-nls --disable-libmudflap --disable-libgomp \
+ 	--disable-libstdc__-v3 --disable-sjlj-exceptions --disable-shared \
+-	--disable-tls --disable-libitm
++	--disable-libsanitizer --disable-tls --disable-libitm
+ 
+ CFLAGS_FOR_TARGET += -DTARGET_POSIX_IO -fno-short-enums
+ 
+@@ -714,10 +716,10 @@ stmp-build-host-cloog: stmp-config-host-cloog
+ build-host-cloog: stmp-build-host-cloog
+ stmp-install-host-cloog: stmp-build-host-cloog
+ 	$(MAKE) -C ${CLOOG_VERSION} install-libLTLIBRARIES \
+-		install-pkgincludeHEADERS
++		install-pkgincludeHEADERS install-pkgislincludeHEADERS
+ ifeq ($(findstring ppl-,$(CLOOG_VERSION)),)
+ 	$(MAKE) -C ${CLOOG_VERSION}/isl install-libLTLIBRARIES \
+-		install-pkgincludeHEADERS
++		install-pkgincludeHEADERS install-nodist_pkgincludeHEADERS
+ endif
+ 	$(STAMP) $@
+ install-host-cloog: stmp-install-host-cloog
+diff --git a/configure b/configure
+index 312a48d..44f22bf 100755
+--- a/configure
++++ b/configure
+@@ -579,8 +579,8 @@ BINUTILS_VERSION
+ package_to_srcdir
+ ENABLE_GRAPHITE
+ host_baseargs
+-enable_gold
+ enable_ld_default
++enable_gold
+ baseargs
+ TOPLEVEL_CONFIGURE_ARGUMENTS
+ GDB_TARGET
+@@ -2179,6 +2179,7 @@ fi
+ 
+ 
+ 
++
+ # Strip --with-sysroot, which is really "target" sysroot, from baseargs
+ # to form host_baseargs for building host libraries.  Passing target
+ # --with-sysroot is detrimantal (*1). Invent a new option
+@@ -2658,13 +2659,14 @@ case $CLOOG_VERSION in
+     # CLooG/PPL relies on the PPL for version 0.15.x
+     CLOOG_VERSION="ppl-$CLOOG_VERSION"
+     ;;
+-  0.16*|0.17*)
++  0.16*|0.17*|0.18*)
+     # CLooG 0.16+ has its own embedded polyhedral library
+     CLOOG_BACKEND="--enable-cloog-backend=isl"
+     ;;
+   *)
+     as_fn_error "Unsupported cloog version" "$LINENO" 5;
+ esac
++
+ x=cloog-${CLOOG_VERSION}; tool=$(echo "$x" | sed -e 's/-.*//'); version=$(echo "$x" | sed -e 's/[^-]*-//'); \
+ if test \( ! -d $srcdir/../$tool/cloog-${CLOOG_VERSION} \) -a \( x"$version" != x"none"  \) ; then
+   if test -f $srcdir/../$tool/cloog-${CLOOG_VERSION}.tar ; then
+diff --git a/configure.ac b/configure.ac
+index 03c5128..e51e5ac 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -476,7 +476,7 @@ case $CLOOG_VERSION in
+     # CLooG/PPL relies on the PPL for version 0.15.x
+     CLOOG_VERSION="ppl-$CLOOG_VERSION"
+     ;;
+-  0.16*|0.17*)
++  0.16*|0.17*|0.18*)
+     # CLooG 0.16+ has its own embedded polyhedral library
+     CLOOG_BACKEND="--enable-cloog-backend=isl"
+     ;;
+-- 
+1.7.11.4
+

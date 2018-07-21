@@ -1,0 +1,14 @@
+diff --git a/gcc-4.9/gcc/collect2.c b/gcc-4.9/gcc/collect2.c
+index dc094ed..bc180eb 100644
+--- a/gcc-4.9/gcc/collect2.c
++++ b/gcc-4.9/gcc/collect2.c
+@@ -849,7 +849,7 @@ main (int argc, char **argv)
+       "ld",
+       PLUGIN_LD_SUFFIX,
+       "ld.gold",
+-      "ld.bfd"
++      "ld.bfd",
+       "ld.mcld"
+     };
+   static const char *const real_ld_suffix = "real-ld";
+

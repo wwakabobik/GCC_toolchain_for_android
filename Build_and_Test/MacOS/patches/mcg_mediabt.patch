@@ -1,0 +1,14 @@
+diff --git a/MediaBTService/mediabtservice/Android.mk b/MediaBTService/mediabtservice/Android.mk
+index b37a981..2faf17c 100644
+--- a/MediaBTService/mediabtservice/Android.mk
++++ b/MediaBTService/mediabtservice/Android.mk
+@@ -14,7 +14,8 @@ LOCAL_C_INCLUDES += \
+      hardware/intel/mfld_cdk/MediaBTService
+ 
+ LOCAL_SHARED_LIBRARIES := \
+-	    libmediabtproxy libasound libbluetooth libbluetooth_vs
++	    libmediabtproxy libasound libbluetooth libbluetooth_vs \
++	    libutils libbinder
+ 
+ LOCAL_MODULE:= mediabtservice
+ 

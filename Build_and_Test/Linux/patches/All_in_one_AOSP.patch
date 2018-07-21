@@ -1,0 +1,36 @@
+
+diff --git a/system/core/libcorkscrew/Android.mk b/system/core/libcorkscrew/Android.mk
+index e275317..719c111 100644
+--- a/system/core/libcorkscrew/Android.mk
++++ b/system/core/libcorkscrew/Android.mk
+@@ -60,7 +60,7 @@ include $(BUILD_SHARED_LIBRARY)
+ # Build test.
+ include $(CLEAR_VARS)
+ LOCAL_SRC_FILES := test.cpp
+-LOCAL_CFLAGS += -Werror -fno-inline-small-functions
++LOCAL_CFLAGS += -fno-inline-small-functions
+ LOCAL_SHARED_LIBRARIES := libcorkscrew
+ LOCAL_MODULE := libcorkscrew_test
+ LOCAL_MODULE_TAGS := optional
+@@ -89,7 +89,7 @@ include $(BUILD_HOST_SHARED_LIBRARY)
+ # Build test.
+ include $(CLEAR_VARS)
+ LOCAL_SRC_FILES := test.cpp
+-LOCAL_CFLAGS += -Werror
++LOCAL_CFLAGS +=
+ LOCAL_SHARED_LIBRARIES := libcorkscrew
+ LOCAL_MODULE := libcorkscrew_test
+ LOCAL_MODULE_TAGS := optional
+diff --git a/hardware/qcom/display/common.mk b/hardware/qcom/display/common.mk
+index f424ac5..e1770d8 100644
+--- a/hardware/qcom/display/common.mk
++++ b/hardware/qcom/display/common.mk
+@@ -12,7 +12,7 @@ common_libs := liblog libutils libcutils libhardware
+ 
+ #Common C flags
+ common_flags := -DDEBUG_CALC_FPS -Wno-missing-field-initializers
+-common_flags += -Werror
++#common_flags += -Werror
+ 
+ ifeq ($(ARCH_ARM_HAVE_NEON),true)
+     common_flags += -D__ARM_HAVE_NEON

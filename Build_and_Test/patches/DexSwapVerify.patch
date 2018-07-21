@@ -1,0 +1,13 @@
+diff --git a/libdex/DexSwapVerify.cpp b/libdex/DexSwapVerify.cpp
+index 1835e9b..0d76d4a 100644
+--- a/libdex/DexSwapVerify.cpp
++++ b/libdex/DexSwapVerify.cpp
+@@ -415,7 +415,7 @@ static bool swapMap(CheckState* state, DexMapList* pMap)
+ 
+         if (first) {
+             first = false;
+-        } else if (lastOffset >= item->offset) {
++        } else if (lastOffset >= item->offset && lastOffset != 0) {
+             ALOGE("Out-of-order map item: %#x then %#x",
+                     lastOffset, item->offset);
+             return false;

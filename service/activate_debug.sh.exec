@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#-------------------------------------------------------------------------------
+# Name:    activate_degug.sh.exec
+# Purpose: set needed debug level fro MC testsuite. 
+#          Without params - full debug, $1=1 - no debug
+#
+# Author:      Iliya Vereshchagin
+#
+# Created:     09.07.2013
+# Copyright:   Contributed by Intel Corporation (c) 2013
+# Licence:     GPL
+#-------------------------------------------------------------------------------
+
+#if none specified, then activate full debug
+
+if [[ $1 != 1 ]]; then
+    f="\\\$debug"
+    g="\\\$ndebug"
+else
+    f="\\\$ndebug"
+    g="\\\$debug"
+fi
+
+t="\#debug"
+
+for i in `egrep -r $t ./*.sh | grep -v svn | cut -d ":" -f1`
+do
+    reg="s/$t/$g/g"
+    sed -e $reg $i > ${i}.bak
+    mv ${i}.bak $i
+    echo $i
+done
+
+for i in `egrep -r $f ./*.sh | grep -v svn | cut -d ":" -f1`
+do
+    reg="s/$f/$t/g"
+    sed -e $reg $i > ${i}.bak
+    mv ${i}.bak $i
+    echo $i
+done
+
+chmod ug+rwx *.sh

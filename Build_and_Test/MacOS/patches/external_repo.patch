@@ -1,0 +1,28 @@
+diff --git a/build/tools/dev-defaults.sh b/build/tools/dev-defaults.sh
+index ea3099f..da72c0e 100644
+--- a/build/tools/dev-defaults.sh
++++ b/build/tools/dev-defaults.sh
+@@ -26,7 +26,7 @@ GNUSTL_SUBDIR=sources/cxx-stl/gnu-libstdc++
+ TOOLCHAIN_GIT_DATE=now
+ 
+ # The space-separated list of all GCC versions we support in this NDK
+-DEFAULT_GCC_VERSION_LIST="4.6 4.7 4.4.3"
++DEFAULT_GCC_VERSION_LIST="4.6 4.7"
+ 
+ # The default GCC version for this NDK, i.e. the first item in
+ # $DEFAULT_GCC_VERSION_LIST
+diff --git a/build/tools/dev-rebuild-ndk.sh b/build/tools/dev-rebuild-ndk.sh
+index 4f6b424..0efe853 100755
+--- a/build/tools/dev-rebuild-ndk.sh
++++ b/build/tools/dev-rebuild-ndk.sh
+@@ -114,7 +114,9 @@ fi
+ 
+ echo
+ echo "Checking for Toolchain sources"
+-NDK_SRC_DIR=/tmp/ndk-$USER/src/android-ndk-src-${TOOLCHAIN_GIT_DATE}${PATCHES_SHA1}
++#NDK_SRC_DIR=/tmp/ndk-$USER/src/android-ndk-src-${TOOLCHAIN_GIT_DATE}${PATCHES_SHA1}
++NDK_SRC_DIR=/users/abantonx/AndroidBuild/repos/1028/toolchain_synced
++
+ if [ ! -d $NDK_SRC_DIR ]
+ then
+     echo "  Downloading Toolchain sources"

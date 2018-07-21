@@ -1,0 +1,27 @@
+From 3eb6d5d59cb997b58d61db3be78fac9d93f896d9 Mon Sep 17 00:00:00 2001
+From: Pavel Chupin <pavel.v.chupin@intel.com>
+Date: Mon, 4 Feb 2013 17:49:40 +0400
+Subject: [PATCH 3/5] Message TBD:
+ 0001-gcc-4.6-and-4.7-Disable-sincos-optimization.patch
+
+Signed-off-by: Pavel Chupin <pavel.v.chupin@intel.com>
+---
+ gcc/config/linux.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/gcc/config/linux.h b/gcc/config/linux.h
+index 2be1079..b83dc08 100644
+--- a/gcc/config/linux.h
++++ b/gcc/config/linux.h
+@@ -102,7 +102,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+ 
+ /* Whether we have sincos that follows the GNU extension.  */
+ #undef TARGET_HAS_SINCOS
+-#define TARGET_HAS_SINCOS (OPTION_GLIBC || OPTION_BIONIC)
++#define TARGET_HAS_SINCOS (OPTION_GLIBC)
+ 
+ /* Whether we have Bionic libc runtime */
+ #undef TARGET_HAS_BIONIC
+-- 
+1.7.11.4
+

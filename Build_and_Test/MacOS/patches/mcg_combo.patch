@@ -1,0 +1,12 @@
+diff --git a/core/combo/TARGET_linux-x86.mk b/core/combo/TARGET_linux-x86.mk
+index b68a972..b5448b9 100644
+--- a/core/combo/TARGET_linux-x86.mk
++++ b/core/combo/TARGET_linux-x86.mk
+@@ -191,7 +191,6 @@ $(hide) $(PRIVATE_CXX) \
+ 	$(TARGET_GLOBAL_LDFLAGS) \
+ 	-nostdlib -Bdynamic \
+ 	-Wl,-dynamic-linker,/system/bin/linker \
+-	-Wl,--copy-dt-needed-entries \
+ 	-Wl,-z,nocopyreloc \
+ 	-fPIE -pie \
+ 	-o $@ \

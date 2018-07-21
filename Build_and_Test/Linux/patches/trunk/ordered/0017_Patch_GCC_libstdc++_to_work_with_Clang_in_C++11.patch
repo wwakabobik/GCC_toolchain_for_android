@@ -1,0 +1,16 @@
+diff --git a/gcc-4.9/libstdc++-v3/include/std/type_traits b/gcc-4.9/libstdc++-v3/include/std/type_traits
+index 334b8d0..97f8baf 100644
+--- a/gcc-4.9/libstdc++-v3/include/std/type_traits
++++ b/gcc-4.9/libstdc++-v3/include/std/type_traits
+@@ -1873,7 +1873,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+     struct __common_type_impl
+     : private __do_common_type_impl
+     {
+-      typedef decltype(_S_test<_Tp, _Up>(0)) type;
++      typedef typename decay<decltype(_S_test<_Tp, _Up>(0))>::type type;
+     };
+ 
+   struct __do_member_type_wrapper
+-- 
+1.8.1.4
+

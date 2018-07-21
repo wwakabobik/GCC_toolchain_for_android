@@ -1,0 +1,151 @@
+Index: gcc/testsuite/g++.dg/gcov/gcov.exp
+===================================================================
+--- gcc/testsuite/g++.dg/gcov/gcov.exp	(revision 201518)
++++ gcc/testsuite/g++.dg/gcov/gcov.exp	(working copy)
+@@ -21,12 +21,16 @@
+ load_lib gcov.exp
+ 
+ global GXX_UNDER_TEST
+-
+-# Find gcov in the same directory as $GXX_UNDER_TEST.
+-if { ![is_remote host] && [string match "*/*" [lindex $GXX_UNDER_TEST 0]] } {
+-    set GCOV [file dirname [lindex $GXX_UNDER_TEST 0]]/gcov
++global GCOV_UNDER_TEST
++if { $GCOV_UNDER_TEST != "" } {
++    set GCOV $GCOV_UNDER_TEST
+ } else {
+-    set GCOV gcov
++    # Find gcov in the same directory as $GXX_UNDER_TEST.
++    if { ![is_remote host] && [string match "*/*" [lindex $GXX_UNDER_TEST 0]] } {
++	set GCOV [file dirname [lindex $GXX_UNDER_TEST 0]]/gcov
++    } else {
++	set GCOV gcov
++    }
+ }
+ 
+ # Initialize harness.
+Index: gcc/testsuite/gcc.misc-tests/gcov.exp
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov.exp	(revision 201518)
++++ gcc/testsuite/gcc.misc-tests/gcov.exp	(working copy)
+@@ -22,11 +22,17 @@
+ 
+ global GCC_UNDER_TEST
+ 
+-# For now find gcov in the same directory as $GCC_UNDER_TEST.
+-if { ![is_remote host] && [string match "*/*" [lindex $GCC_UNDER_TEST 0]] } {
+-    set GCOV [file dirname [lindex $GCC_UNDER_TEST 0]]/gcov
++
++global GCOV_UNDER_TEST
++if { $GCOV_UNDER_TEST != "" } {
++    set GCOV $GCOV_UNDER_TEST
+ } else {
+-    set GCOV gcov
++    # For now find gcov in the same directory as $GCC_UNDER_TEST.
++     if { ![is_remote host] && [string match "*/*" [lindex $GCC_UNDER_TEST 0]] } {
++ 	set GCOV [file dirname [lindex $GCC_UNDER_TEST 0]]/gcov
++     } else {
++ 	set GCOV gcov
++     }
+ }
+ 
+ # Initialize harness.
+Index: gcc/testsuite/lib/file-format.exp
+===================================================================
+--- gcc/testsuite/lib/file-format.exp	(revision 201518)
++++ gcc/testsuite/lib/file-format.exp	(working copy)
+@@ -32,6 +32,8 @@
+     } elseif { [string match "*-*-darwin*" $target_triplet] } {
+ 	# Darwin doesn't necessarily have objdump, so hand-code it.
+ 	set gcc_target_object_format_saved mach-o
++    } elseif { [string match "*-android*" $target_triplet] } {
++             set gcc_target_object_format_saved elf
+     } elseif { [string match "hppa*-*-hpux*" $target_triplet] } {
+ 	# HP-UX doesn't necessarily have objdump, so hand-code it.
+ 	if { [string match "hppa*64*-*-hpux*" $target_triplet] } {
+Index: gcc/testsuite/lib/g++.exp
+===================================================================
+--- gcc/testsuite/lib/g++.exp	(revision 201518)
++++ gcc/testsuite/lib/g++.exp	(working copy)
+@@ -82,13 +82,13 @@
+       return "${flags}"
+     }
+ 
+-    set gccpath ${paths}
+-
+-    set odir [lookfor_file ${gccpath} libstdc++-v3]
+-    if { ${odir} != "" } {
+-      append flags [exec sh ${odir}/scripts/testsuite_flags --build-includes]  
++    if { ![iscross] } {
++      set gccpath ${paths}
++      set odir [lookfor_file ${gccpath} libstdc++-v3]
++      if { ${odir} != "" } {
++        append flags [exec sh ${odir}/scripts/testsuite_flags --build-includes]
++      }
+     }
+-
+     return "$flags"
+ }
+ 
+Index: gcc/testsuite/lib/gcov.exp
+===================================================================
+--- gcc/testsuite/lib/gcov.exp	(revision 201518)
++++ gcc/testsuite/lib/gcov.exp	(working copy)
+@@ -254,6 +254,18 @@
+ 
+     verbose "Running $GCOV $testcase" 2
+     set testcase [remote_download host $testcase]
++
++    if { ![is_remote host] } {
++	set not_cleaned_source_name [ string trim $gcov_args " " ]
++	if { [ iscross ] && [ string compare "$not_cleaned_source_name" "" ] != 0 } {
++	    set pieces_list [split $not_cleaned_source_name " "]
++	    set src_name [lrange $pieces_list end end]
++	    set pure_source_name [file rootname $src_name]
++	    global bridge_tmp_dir
++	    [target_info generic_name]_upload [target_info name] $bridge_tmp_dir/$pure_source_name.gcda [pwd]
++	}
++    }
++
+     set result [remote_exec host $GCOV $gcov_args]
+     if { [lindex $result 0] != 0 } {
+ 	fail "$subdir/$testcase gcov failed: [lindex $result 1]"
+Index: gcc/testsuite/lib/profopt.exp
+===================================================================
+--- gcc/testsuite/lib/profopt.exp	(revision 201518)
++++ gcc/testsuite/lib/profopt.exp	(working copy)
+@@ -290,7 +290,12 @@
+ 	# Make sure the profile data was generated, and fail if not.
+ 	if { $status == "pass" } {
+ 	    foreach ext $prof_ext {
+-		remote_upload target $tmpdir/$base.$ext
++		if { [ iscross ] && $ext == "gcda" } {
++		    global bridge_tmp_dir
++		    [target_info generic_name]_upload [target_info name] $bridge_tmp_dir/$base.gcda $tmpdir
++		} else {
++		    remote_upload target $tmpdir/$base.$ext
++		}
+ 		set files [glob -nocomplain $base.$ext]
+ 		if { $files == "" } {
+ 		    set status "fail"
+Index: gcc/testsuite/lib/scanasm.exp
+===================================================================
+--- gcc/testsuite/lib/scanasm.exp	(revision 201518)
++++ gcc/testsuite/lib/scanasm.exp	(working copy)
+@@ -44,6 +44,16 @@
+ 	}
+     }
+ 
++    # it's the patch for tests like gcc.dg/pr47793.c (4.7.2) for target cross
++    if { [file extension $output_file] == ".gcda" && [ iscross ] } {
++	global tmpdir
++	upvar 3 dg-do-what stage_list
++	if { [lindex $stage_list 0] == "run" } {
++	    global bridge_tmp_dir
++	    [target_info generic_name]_upload [target_info name] $bridge_tmp_dir/$output_file $tmpdir
++	}
++    }
++
+     if { [is_remote host] } {
+ 	remote_upload host "$output_file"
+     } 

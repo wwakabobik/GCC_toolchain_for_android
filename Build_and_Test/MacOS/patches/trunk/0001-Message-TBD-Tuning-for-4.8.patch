@@ -1,0 +1,78 @@
+From 7bc58daa5ed8583ea3552a7a7a54836dc56693e7 Mon Sep 17 00:00:00 2001
+From: Pavel Chupin <pavel.v.chupin@intel.com>
+Date: Mon, 11 Feb 2013 16:04:02 +0400
+Subject: [PATCH] Message TBD: Tuning for 4.8
+
+Change-Id: I28c9978e51d2de4c226a7d530b7a2c11d6b09401
+Signed-off-by: Pavel Chupin <pavel.v.chupin@intel.com>
+---
+ build/tools/build-gcc.sh    | 17 ++++++++++++-----
+ build/tools/dev-defaults.sh |  6 +++---
+ 2 files changed, 15 insertions(+), 8 deletions(-)
+
+diff --git a/build/tools/build-gcc.sh b/build/tools/build-gcc.sh
+index 5cd3411..46ec358 100755
+--- a/build/tools/build-gcc.sh
++++ b/build/tools/build-gcc.sh
+@@ -226,13 +226,15 @@ export ABI=$HOST_GMP_ABI
+ # Note that the following flags only apply for "build" in canadian
+ # -Wno-error is needed because our gdb-6.6 sources use -Werror by default
+ # and fail to build with recent GCC versions.
+-CFLAGS_FOR_BUILD="-O2 -s -Wno-error"
+-LDFLAGS_FOR_BUILD=
++CFLAGS_FOR_BUILD="-O2 -s -Wno-error -m32"
++CXXFLAGS_FOR_BUILD="-O2 -s -Wno-error -m32"
++LDFLAGS_FOR_BUILD="-m32"
+ 
+ CFLAGS="$CFLAGS_FOR_BUILD $HOST_CFLAGS"
++CXXFLAGS="$CXXFLAGS_FOR_BUILD $HOST_CXXFLAGS"
+ LDFLAGS="$LDFLAGS_FOR_BUILD $HOST_LDFLAGS"
+ 
+-export CFLAGS LDFLAGS CFLAGS_FOR_BUILD LDFLAGS_FOR_BUILD
++export CFLAGS CXXFLAGS LDFLAGS CFLAGS_FOR_BUILD CXXFLAGS_FOR_BUILD LDFLAGS_FOR_BUILD
+ 
+ # This extra flag is used to slightly speed up the build
+ EXTRA_CONFIG_FLAGS="--disable-bootstrap"
+@@ -265,8 +267,9 @@ EXTRA_CONFIG_FLAGS=$EXTRA_CONFIG_FLAGS" --enable-libgomp"
+ 
+ # Enable Gold as default
+ case "$TOOLCHAIN" in
++    x86-4.4.3|arm-linux-androideabi-4.4.3) ;;
+     # Note that only ARM and X86 are supported
+-    x86-4.6|arm-linux-androideabi-4.6|x86-4.7|arm-linux-androideabi-4.7)
++    x86-*|arm-linux-androideabi-*)
+         EXTRA_CONFIG_FLAGS=$EXTRA_CONFIG_FLAGS" --enable-gold=default"
+     ;;
+ esac
+@@ -274,7 +277,11 @@ esac
+ # Enable Graphite
+ case "$TOOLCHAIN" in
+     # Only for 4.6 and 4.7 for now
+-    *-4.6|*-4.7)
++    *-4.4.3) ;;
++    *-4.8)
++        EXTRA_CONFIG_FLAGS=$EXTRA_CONFIG_FLAGS" --enable-graphite=yes --with-cloog-version=0.18.0 --with-ppl-version=$PPL_VERSION"
++    ;;
++    *)
+         EXTRA_CONFIG_FLAGS=$EXTRA_CONFIG_FLAGS" --enable-graphite=yes --with-cloog-version=$CLOOG_VERSION --with-ppl-version=$PPL_VERSION"
+     ;;
+ esac
+diff --git a/build/tools/dev-defaults.sh b/build/tools/dev-defaults.sh
+index f8f3043..c1fa4c8 100644
+--- a/build/tools/dev-defaults.sh
++++ b/build/tools/dev-defaults.sh
+@@ -193,8 +193,8 @@ get_toolchain_name_list_for_arch ()
+ get_default_binutils_version_for_gcc ()
+ {
+     case $1 in
+-        arm-*-4.4.3|x86-4.4.3|x86-*-4.4.3) echo "2.19";;
+-        arm-*-4.7|x86-4.7|x86-*-4.7|mipsel-*-4.7) echo "2.22";;
+-        *) echo "$DEFAULT_BINUTILS_VERSION";;
++        *-4.4.3) echo "2.19";;
++        *-4.6) echo "$DEFAULT_BINUTILS_VERSION";;
++        *) echo "2.22";;
+     esac
+ }
+-- 
+1.7.11.4
+

@@ -1,0 +1,42 @@
+diff --git a/gcc-4.9/libgcc/Makefile.in b/gcc-4.9/libgcc/Makefile.in
+index ba1a975..a824e82 100644
+--- a/gcc-4.9/libgcc/Makefile.in
++++ b/gcc-4.9/libgcc/Makefile.in
+@@ -224,11 +224,13 @@ DECNUMINC =
+ endif
+ 
+ # Options to use when compiling libgcc2.a.
++# Adding -funwind-tables to debug idiv0 cases for Android
+ #
+ LIBGCC2_DEBUG_CFLAGS = -g
+ LIBGCC2_CFLAGS = -O2 $(LIBGCC2_INCLUDES) $(GCC_CFLAGS) $(HOST_LIBGCC2_CFLAGS) \
+ 		 $(LIBGCC2_DEBUG_CFLAGS) -DIN_LIBGCC2 \
+ 		 -fbuilding-libgcc -fno-stack-protector \
++		 -funwind-tables \
+ 		 $(INHIBIT_LIBC_CFLAGS)
+ 
+ # Additional options to use when compiling libgcc2.a.
+diff --git a/gcc-4.9/libgcc/config/arm/lib1funcs.S b/gcc-4.9/libgcc/config/arm/lib1funcs.S
+index 8b140d9..685e532 100644
+--- a/gcc-4.9/libgcc/config/arm/lib1funcs.S
++++ b/gcc-4.9/libgcc/config/arm/lib1funcs.S
+@@ -1326,10 +1326,16 @@ LSYM(Lover12):
+ 	ARM_FUNC_START div0
+ #endif
+ 
++	/* ANDROID LOCAL BEGIN */
++	/* Adding stack unwinding directives to debug divide-by-0 errors */
++	.fnstart
++	.save   {r1, lr}
+ 	do_push	{r1, lr}
+ 	mov	r0, #SIGFPE
+ 	bl	SYM(raise) __PLT__
+ 	RETLDM	r1
++	.fnend
++	/* ANDROID LOCAL END */
+ 
+ #ifdef __ARM_EABI__
+ 	FUNC_END aeabi_ldiv0
+-- 
+1.8.1.4
+

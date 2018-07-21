@@ -1,0 +1,13 @@
+diff --git a/components/modem/Android.mk b/components/modem/Android.mk
+index 243abb1..cd5bf78 100644
+--- a/components/modem/Android.mk
++++ b/components/modem/Android.mk
+@@ -8,7 +8,7 @@ LOCAL_SRC_FILES := \
+     at.c
+ LOCAL_LDFLAGS := -Wl,-export-dynamic -Wl,--no-gc-sections
+ LOCAL_MODULE := modem_test
+-LOCAL_SHARED_LIBRARIES := libglib_ct
++LOCAL_SHARED_LIBRARIES := libglib_ct libdl liblog
+ LOCAL_STATIC_LIBRARIES := libtty_utils
+ LOCAL_MODULE_TAGS := eng
+ LOCAL_C_INCLUDES += \

@@ -1,0 +1,68 @@
+diff --git a/gcc-4.9/gcc/collect2.c b/gcc-4.9/gcc/collect2.c
+index 99dd41d..dc094ed 100644
+--- a/gcc-4.9/gcc/collect2.c
++++ b/gcc-4.9/gcc/collect2.c
+@@ -841,6 +841,7 @@ main (int argc, char **argv)
+       USE_PLUGIN_LD,
+       USE_GOLD_LD,
+       USE_BFD_LD,
++      USE_MCLD_LD,
+       USE_LD_MAX
+     } selected_linker = USE_DEFAULT_LD;
+   static const char *const ld_suffixes[USE_LD_MAX] =
+@@ -849,6 +850,7 @@ main (int argc, char **argv)
+       PLUGIN_LD_SUFFIX,
+       "ld.gold",
+       "ld.bfd"
++      "ld.mcld"
+     };
+   static const char *const real_ld_suffix = "real-ld";
+   static const char *const collect_ld_suffix = "collect-ld";
+@@ -1018,6 +1020,8 @@ main (int argc, char **argv)
+ 	  selected_linker = USE_BFD_LD;
+ 	else if (strcmp (argv[i], "-fuse-ld=gold") == 0)
+ 	  selected_linker = USE_GOLD_LD;
++	else if (strcmp (argv[i], "-fuse-ld=mcld") == 0)
++	  selected_linker = USE_MCLD_LD;
+ 
+ #ifdef COLLECT_EXPORT_LIST
+ 	/* These flags are position independent, although their order
+@@ -1289,7 +1293,7 @@ main (int argc, char **argv)
+ 	      else if (!use_collect_ld
+ 		       && strncmp (arg, "-fuse-ld=", 9) == 0)
+ 		{
+-		  /* Do not pass -fuse-ld={bfd|gold} to the linker. */
++		  /* Do not pass -fuse-ld={bfd|gold|mcld} to the linker. */
+ 		  ld1--;
+ 		  ld2--;
+ 		}
+diff --git a/gcc-4.9/gcc/doc/invoke.texi b/gcc-4.9/gcc/doc/invoke.texi
+index 9273d7d..6ef6039 100644
+--- a/gcc-4.9/gcc/doc/invoke.texi
++++ b/gcc-4.9/gcc/doc/invoke.texi
+@@ -8597,6 +8597,9 @@ Use the @command{bfd} linker instead of the default linker.
+ @item -fuse-ld=gold
+ Use the @command{gold} linker instead of the default linker.
+ 
++@item -fuse-ld=mcld
++Use the @command{mcld} linker instead of the default linker.
++
+ @item -fcprop-registers
+ @opindex fcprop-registers
+ After register allocation and post-register allocation instruction splitting,
+diff --git a/gcc-4.9/gcc/gcc.c b/gcc-4.9/gcc/gcc.c
+index 86077f8..f0b946e 100644
+--- a/gcc-4.9/gcc/gcc.c
++++ b/gcc-4.9/gcc/gcc.c
+@@ -537,7 +537,7 @@ proper position among the other output files.  */
+    shared library ordering, and we keep the wrapper function in
+    libgcc.  This is not yet a real spec, though it could become one;
+    it is currently just stuffed into LINK_SPEC.  FIXME: This wrapping
+-   only works with GNU ld and gold.  FIXME: This is incompatible with
++   only works with GNU ld, gold and mcld.  FIXME: This is incompatible with
+    -fmudflap when linking statically, which wants to do its own
+    wrapping.  */
+ #define STACK_SPLIT_SPEC " %{fsplit-stack: --wrap=pthread_create}"
+-- 
+1.8.1.4
+

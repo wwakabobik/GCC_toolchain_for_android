@@ -1,0 +1,97 @@
+#!/usr/bin/tclsh
+
+ set somefile ""
+ set gcc_start ""
+ set gcc_end   ""
+ set gcc_time  ""
+ set gpp_start ""
+ set gpp_end   ""
+ set gpp_time  ""
+ set total_time ""
+
+set time_diff 3
+set GCC_START_DATE_TIME ""
+
+set gcc_ver [lindex $argv 0]
+set test_arch [lindex $argv 1]
+set device_alias [lindex $argv 2]
+set compiler [lindex $argv 3]
+
+set database  [lindex $argv 4]
+set bits  [lindex $argv 5]
+set tested_object [lindex $argv 6]
+set image_type [lindex $argv 7]
+set target_bits [lindex $argv 8]
+
+set files_list {gcc.log g++.log}
+
+foreach file $files_list {
+
+    set somefile "$gcc_ver/ANDROID_MAKE_CHECK/$file"
+    if { ! [file exists ${somefile} ]} {
+        puts "$somefile DOES NOT EXIST"
+        return -1
+    }
+ 
+    set fd [open ${somefile} r]
+    gets $fd startline
+    set startline_len [string length $startline]
+    set frst [expr $startline_len - 20]
+    set start_date_time [string range $startline $frst end]
+    # A nice fat upper bound!
+    set upperBoundLength 1024
+    # Open the log file
+    # Go to some distance from the end; catch because don't care about errors here
+    catch {seek $fd -$upperBoundLength end}
+    # Read to end, stripping trailing newline
+    set data [read -nonewline $fd]
+    # Hygiene: close the logfile
+    ##close $f
+    # Get the last line
+    set lastline [lindex [split $data "\n"] end]
+
+    set lastline_len [string length $lastline]
+    set frst [expr $lastline_len - 20]
+    set end_date_time [string range $lastline $frst end]
+    if { ! [regexp "(Jan)|(Feb)|(Mar)|(Apr)|(May)|(Jun)|(Jul)|(Aug)|(Sep)|(Oct)|(Nov)|(Dec)| ?\[0-9\] \[0-9\]\{2\}:\[0-9\]\{2\}:\[0-9\]\{2\} \[0-9\]\{4\}"  $end_date_time] } {
+        return -1
+    }
+
+    set s [clock scan $start_date_time \
+        -format {%b %d %H:%M:%S %Y}  ]
+    set s3 [clock add $s $time_diff hours]
+    set e [clock scan $end_date_time \
+        -format {%b %d %H:%M:%S %Y} ]
+    set d [expr $e - $s3]
+    set df [clock format $d -format {%H:%M:%S} ]
+
+    close $fd
+    if { [string match gcc* $file] } {
+        set GCC_START_DATE [clock format $s  -format  {%Y/%m/%d} ]
+        set gcc_start [clock format $s -format {%H:%M:%S}]
+        set gcc_end [clock format $e -format {%H:%M:%S}]
+        set gcc_time $df
+        set gcc_d $d
+    }
+    if { [string match g++* $file] } {
+        set gpp_start [clock format $s -format {%H:%M:%S}]
+        set gpp_end [clock format $e -format {%H:%M:%S}]
+        set gpp_time $df
+        set gpp_d $d
+    }
+}
+
+set total_d0 [expr $gcc_d + $gpp_d]
+set total_d [clock add $total_d0 $time_diff hours]
+set total_time  [clock format $total_d -format {%H:%M:%S}]
+
+puts  "GCC_START_DATE=$GCC_START_DATE gcc: $gcc_start -> $gcc_end  gpp: $gpp_start -> $gpp_end  --->  DURATIONS: gcc=$gcc_time gpp=$gpp_time total=$total_time"
+
+set path_to_ndk_regressions "/nfs/ims/proj/icl/gcc_cw/share/NDK_Regressions"
+set tablename "ndk_timing"
+
+exec ls
+
+exec /usr/bin/sqlite3 $path_to_ndk_regressions/$database "insert into $tablename (ndk_version, bits, tested_object, image_type, date_of_run, gcc_start, gcc_end, gpp_start,  gpp_end, gcc_time, gpp_time, total_time,  act_date, target_bits) values ('${compiler}', $bits, $tested_object, '${image_type}',  '${GCC_START_DATE}', '${gcc_start}', '${gcc_end}', '${gpp_start}',  '${gpp_end}', '${gcc_time}', '${gpp_time}', '${total_time}', datetime('now'), ${target_bits})" 
+
+return 0

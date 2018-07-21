@@ -1,0 +1,43 @@
+
+project device/intel/telephony_tools/PRIVATE/component_testing/
+diff --git a/components/modem/Android.mk b/components/modem/Android.mk
+index 243abb1..28906e3 100644
+--- a/components/modem/Android.mk
++++ b/components/modem/Android.mk
+@@ -8,7 +8,7 @@ LOCAL_SRC_FILES := \
+     at.c
+ LOCAL_LDFLAGS := -Wl,-export-dynamic -Wl,--no-gc-sections
+ LOCAL_MODULE := modem_test
+-LOCAL_SHARED_LIBRARIES := libglib_ct
++LOCAL_SHARED_LIBRARIES := libglib_ct libdl
+ LOCAL_STATIC_LIBRARIES := libtty_utils
+ LOCAL_MODULE_TAGS := eng
+ LOCAL_C_INCLUDES += \
+diff --git a/lib/tty_utils/Android.mk b/lib/tty_utils/Android.mk
+index 87cfb98..d04f220 100644
+--- a/lib/tty_utils/Android.mk
++++ b/lib/tty_utils/Android.mk
+@@ -8,6 +8,7 @@ SUPPORT_UNITTESTS := 1
+ endif
+ LOCAL_SRC_FILES := \
+     tty_utils.c
++LOCAL_STATIC_LIBRARIES:= liblog
+ LOCAL_MODULE := libtty_utils
+ LOCAL_MODULE_TAGS := eng
+ LOCAL_C_INCLUDES += \
+
+project hardware/ril/
+diff --git a/rild/Android.mk b/rild/Android.mk
+index 3bae5ad..a94da12 100644
+--- a/rild/Android.mk
++++ b/rild/Android.mk
+@@ -11,7 +11,9 @@ LOCAL_SHARED_LIBRARIES := \
+ 	libcutils \
+ 	libril
+ 
++ifeq ($(TARGET_ARCH),arm)
+ LOCAL_SHARED_LIBRARIES += libdl
++endif # arm
+ 
+ LOCAL_CFLAGS := -DRIL_SHLIB
+ 

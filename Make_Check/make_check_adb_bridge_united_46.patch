@@ -1,0 +1,2733 @@
+Index: gcc/testsuite/g++.dg/abi/forced.C
+===================================================================
+--- gcc/testsuite/g++.dg/abi/forced.C	(revision 201681)
++++ gcc/testsuite/g++.dg/abi/forced.C	(working copy)
+@@ -1,6 +1,7 @@
+ // This test only applies to glibc (NPTL) targets.
+ // { dg-do run { target *-*-linux* } }
+-// { dg-options "-pthread" }
++// { dg-options "-pthread" { target { ! *-*-android* } } }
++// { dg-options "" { target { *-*-android* } } }
+ 
+ #include <pthread.h>
+ #include <cxxabi.h>
+Index: gcc/testsuite/g++.dg/bprob/bprob.exp
+===================================================================
+--- gcc/testsuite/g++.dg/bprob/bprob.exp	(revision 201681)
++++ gcc/testsuite/g++.dg/bprob/bprob.exp	(working copy)
+@@ -55,6 +56,12 @@
+ 
+ # Main loop.
+ foreach profile_option $profile_options feedback_option $feedback_options {
++    global bridge_mode
++    if { [ info exists bridge_mode ] } {
++       set profile_option "-fprofile-arcs "
++    } else {
++       set profile_option $profile_options
++    }
+     foreach src [lsort [glob -nocomplain $srcdir/$subdir/*.C]] {
+         # If we're only testing specific files and this isn't one of them, skip it.
+         if ![runtest_file_p $runtests $src] then {
+Index: gcc/testsuite/g++.dg/cdce3.C
+===================================================================
+--- gcc/testsuite/g++.dg/cdce3.C	(revision 201681)
++++ gcc/testsuite/g++.dg/cdce3.C	(working copy)
+@@ -18,7 +18,7 @@
+ /* { dg-final { scan-tree-dump  "cdce3.C:103: note: function call is shrink-wrapped into error conditions\." "cdce" } } */
+ /* { dg-final { scan-tree-dump  "cdce3.C:104: note: function call is shrink-wrapped into error conditions\." "cdce" } } */
+ /* { dg-final { scan-tree-dump  "cdce3.C:105: note: function call is shrink-wrapped into error conditions\." "cdce" } } */
+-/* { dg-final { scan-tree-dump  "cdce3.C:106: note: function call is shrink-wrapped into error conditions\." "cdce" } } */
++/* { dg-final { scan-tree-dump  "cdce3.C:106: note: function call is shrink-wrapped into error conditions\." "cdce" { target { ! *-*-android* } } } } */
+ /* { dg-final { scan-tree-dump  "cdce3.C:107: note: function call is shrink-wrapped into error conditions\." "cdce" } } */
+ /* { dg-final { scan-tree-dump  "cdce3.C:108: note: function call is shrink-wrapped into error conditions\." "cdce" } } */
+ /* { dg-final { scan-tree-dump  "cdce3.C:109: note: function call is shrink-wrapped into error conditions\." "cdce" } } */
+@@ -82,7 +82,7 @@
+ DEF_MATH_FUNC (m,acosh)
+ DEF_MATH_FUNC (m,atanh)
+ DEF_MATH_FUNC (m,log)
+-DEF_MATH_FUNC (m,log2)
++
+ DEF_MATH_FUNC (m,log10)
+ DEF_MATH_FUNC (m,log1p)
+ DEF_MATH_FUNC (m,sqrt)
+@@ -103,7 +103,7 @@
+ DEF_MATH_FUNC (o,acosh)
+ DEF_MATH_FUNC (o,atanh)
+ DEF_MATH_FUNC (o,log)
+-DEF_MATH_FUNC (o,log2)
++
+ DEF_MATH_FUNC (o,log10)
+ DEF_MATH_FUNC (o,log1p)
+ DEF_MATH_FUNC (o,sqrt)
+@@ -141,7 +141,7 @@
+   INIT_MATH_FUNC (m,atanh, true, true)
+   INIT_MATH_FUNC (m,log10, true, false)
+   INIT_MATH_FUNC (m,log, true, false)
+-  INIT_MATH_FUNC (m,log2, true, false)
++
+   INIT_MATH_FUNC (m,log1p, true, false)
+   INIT_MATH_FUNC (m,sqrt, true, false)
+   { 0, 0,  0, 0, 0, 0} };
+@@ -163,7 +163,7 @@
+   INIT_MATH_FUNC (o,atanh, true, true)
+   INIT_MATH_FUNC (o,log10, true, false)
+   INIT_MATH_FUNC (o,log, true, false)
+-  INIT_MATH_FUNC (o,log2, true, false)
++
+   INIT_MATH_FUNC (o,log1p, true, false)
+   INIT_MATH_FUNC (o,sqrt, true, false)
+   { 0, 0,  0, 0, 0, 0} };
+Index: gcc/testsuite/g++.dg/cpp0x/constexpr-98.C
+===================================================================
+--- gcc/testsuite/g++.dg/cpp0x/constexpr-98.C	(revision 201681)
++++ gcc/testsuite/g++.dg/cpp0x/constexpr-98.C	(working copy)
+@@ -1,4 +1,4 @@
+ // { dg-options "-std=c++98" }
+ 
+-constexpr int i = 42;	  // { dg-message "std=c\\+\\+0x" }
++constexpr int i = 42;     // { dg-message "std=c\\+\\+11" }
+ // { dg-error "constexpr" "" { target *-*-* } 3 }
+Index: gcc/testsuite/g++.dg/cpp0x/initlist17.C
+===================================================================
+--- gcc/testsuite/g++.dg/cpp0x/initlist17.C	(revision 201681)
++++ gcc/testsuite/g++.dg/cpp0x/initlist17.C	(working copy)
+@@ -1,4 +1,5 @@
+-// { dg-options "-std=c++0x" }
++// { dg-options "-std=c++0x" { target { ! *-*-android* } } }
++// { dg-options "-std=c++0x -pedantic-errors" { target { *-*-android* } } }
+ 
+ void f(int i);
+ 
+Index: gcc/testsuite/g++.dg/cpp0x/initlist36.C
+===================================================================
+--- gcc/testsuite/g++.dg/cpp0x/initlist36.C	(revision 201681)
++++ gcc/testsuite/g++.dg/cpp0x/initlist36.C	(working copy)
+@@ -1,5 +1,6 @@
+ // PR c++/44358
+-// { dg-options "-std=c++0x" }
++// { dg-options "-std=c++0x" { target { ! *-*-android* } } }
++// { dg-options "-std=c++0x -pedantic-errors" { target { *-*-android* } } }
+ 
+ #include <initializer_list>
+ 
+Index: gcc/testsuite/g++.dg/cpp0x/initlist5.C
+===================================================================
+--- gcc/testsuite/g++.dg/cpp0x/initlist5.C	(revision 201681)
++++ gcc/testsuite/g++.dg/cpp0x/initlist5.C	(working copy)
+@@ -1,5 +1,6 @@
+ // Test for narrowing diagnostics
+-// { dg-options "-std=c++0x" }
++// { dg-options "-std=c++0x" { target { ! *-*-android* } } }
++// { dg-options "-std=c++0x -pedantic-errors" { target { *-*-android* } } }
+ 
+ #include <initializer_list>
+ 
+Index: gcc/testsuite/g++.dg/cpp0x/initlist7.C
+===================================================================
+--- gcc/testsuite/g++.dg/cpp0x/initlist7.C	(revision 201681)
++++ gcc/testsuite/g++.dg/cpp0x/initlist7.C	(working copy)
+@@ -1,5 +1,6 @@
+ // PR c++/37932
+-// { dg-options "-std=c++0x" }
++// { dg-options "-std=c++0x" { target { ! *-*-android* } } }
++// { dg-options "-std=c++0x -pedantic-errors" { target { *-*-android* } } }
+ 
+ typedef enum { AA=1, BB=2 } my_enum;
+ 
+Index: gcc/testsuite/g++.dg/cpp0x/noexcept03.C
+===================================================================
+--- gcc/testsuite/g++.dg/cpp0x/noexcept03.C	(revision 201681)
++++ gcc/testsuite/g++.dg/cpp0x/noexcept03.C	(working copy)
+@@ -1,6 +1,6 @@
+ // Runtime test for noexcept-specification.
+ // { dg-options "-std=c++0x -Wnoexcept" }
+-// { dg-do run }
++// { dg-do run { target nonpic } }
+ 
+ #include <exception>
+ #include <cstdlib>
+Index: gcc/testsuite/g++.dg/cpp0x/variadic103.C
+===================================================================
+--- gcc/testsuite/g++.dg/cpp0x/variadic103.C	(revision 201681)
++++ gcc/testsuite/g++.dg/cpp0x/variadic103.C	(working copy)
+@@ -1,14 +1,15 @@
+ // { dg-options "-std=c++0x" }
++/* { dg-error "unknown bound" {target {! i?86-*-android* } } 8 } */
+ 
+ template<class T>
+ T&& create();
+ 
+ template<class T, class... Args>
+ void test() {
+-  T t(create<Args>()...);	// { dg-error "unknown bound" }
++ T t(create<Args>()...); /* { dg-error "incomplete" { target { i?86-*-android* } } } */
+   (void) t;
+ }
+ 
+ int main() {
+   test<int[]>();
+-}
++}
+\ No newline at end of file
+Index: gcc/testsuite/g++.dg/ext/attr-ifunc-1.C
+===================================================================
+--- gcc/testsuite/g++.dg/ext/attr-ifunc-1.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ext/attr-ifunc-1.C	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do run }  */
++/* { dg-do run { target { ! *-*-android* } } }  */
+ /* { dg-require-ifunc "" } */
+ /* { dg-options "-Wno-pmf-conversions" } */
+ 
+Index: gcc/testsuite/g++.dg/ext/attr-ifunc-2.C
+===================================================================
+--- gcc/testsuite/g++.dg/ext/attr-ifunc-2.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ext/attr-ifunc-2.C	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do run }  */
++/* { dg-do run { target { ! *-*-android* } } }  */
+ /* { dg-require-ifunc "" } */
+ /* { dg-options "-Wno-pmf-conversions" } */
+ 
+Index: gcc/testsuite/g++.dg/ext/attr-ifunc-3.C
+===================================================================
+--- gcc/testsuite/g++.dg/ext/attr-ifunc-3.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ext/attr-ifunc-3.C	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do run }  */
++/* { dg-do run { target { ! *-*-android* } } }  */
+ /* { dg-require-ifunc "" } */
+ /* { dg-options "-Wno-pmf-conversions" } */
+ 
+Index: gcc/testsuite/g++.dg/ext/attr-ifunc-4.C
+===================================================================
+--- gcc/testsuite/g++.dg/ext/attr-ifunc-4.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ext/attr-ifunc-4.C	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do run }  */
++/* { dg-do run { target { ! *-*-android* } } }  */
+ /* { dg-require-ifunc "" } */
+ /* { dg-options "-Wno-pmf-conversions" } */
+ 
+Index: gcc/testsuite/g++.dg/ext/cleanup-10.C
+===================================================================
+--- gcc/testsuite/g++.dg/ext/cleanup-10.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ext/cleanup-10.C	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do run { target hppa*-*-hpux* *-*-linux* powerpc*-*-darwin* *-*-darwin[912]* } } */
+ /* { dg-options "-fexceptions -fnon-call-exceptions -O2" } */
++/* { dg-skip-if "" { *-*-android*  } { "*" } { "" } } */
+ /* Verify that cleanups work with exception handling through signal frames
+    on alternate stack.  */
+ 
+Index: gcc/testsuite/g++.dg/ext/cleanup-11.C
+===================================================================
+--- gcc/testsuite/g++.dg/ext/cleanup-11.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ext/cleanup-11.C	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do run { target hppa*-*-hpux* *-*-linux* powerpc*-*-darwin* *-*-darwin[912]* } } */
+ /* { dg-options "-fexceptions -fnon-call-exceptions -O2" } */
++/* { dg-skip-if "" { *-*-android*  } { "*" } { "" } } */
+ /* Verify that cleanups work with exception handling through realtime signal
+    frames on alternate stack.  */
+ 
+Index: gcc/testsuite/g++.dg/ext/cleanup-8.C
+===================================================================
+--- gcc/testsuite/g++.dg/ext/cleanup-8.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ext/cleanup-8.C	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do run { target hppa*-*-hpux* *-*-linux* powerpc*-*-darwin* *-*-darwin[912]* } } */
+ /* { dg-options "-fexceptions -fnon-call-exceptions -O2" } */
++/* { dg-skip-if "" { *-*-android*  } { "*" } { "" } } */
+ /* Verify that cleanups work with exception handling through signal
+    frames.  */
+ 
+Index: gcc/testsuite/g++.dg/ext/cleanup-9.C
+===================================================================
+--- gcc/testsuite/g++.dg/ext/cleanup-9.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ext/cleanup-9.C	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do run { target hppa*-*-hpux* *-*-linux* powerpc*-*-darwin* *-*-darwin[912]* } } */
+ /* { dg-options "-fexceptions -fnon-call-exceptions -O2" } */
++/* { dg-skip-if "" { *-*-android*  } { "*" } { "" } } */
+ /* Verify that cleanups work with exception handling through realtime
+    signal frames.  */
+ 
+Index: gcc/testsuite/g++.dg/ext/pretty3.C
+===================================================================
+--- gcc/testsuite/g++.dg/ext/pretty3.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ext/pretty3.C	(working copy)
+@@ -16,4 +16,5 @@
+ {
+   printf ("%s\n", D<int>().foo (0));
+ }
+-// { dg-final { scan-assembler "const char\\* D<U>::foo\\(typename B<U>::X\\)" } }
++// { dg-final { scan-assembler "const char\\* D<U>::foo\\(typename B<U>::X\\)" { target { ! *-*-android* } } } }
++// { dg-final { scan-assembler "char const\\* D<U>::foo\\(typename B<U>::X\\)" { target { *-*-android* } } } }
+Index: gcc/testsuite/g++.dg/gcov/gcov-1.C
+===================================================================
+--- gcc/testsuite/g++.dg/gcov/gcov-1.C	(revision 201681)
++++ gcc/testsuite/g++.dg/gcov/gcov-1.C	(working copy)
+@@ -1,8 +1,9 @@
+ /* Check that execution counts and branch probabilities for various C
+    constructs are reported correctly by gcov. */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ extern "C" void abort (void);
+ 
+Index: gcc/testsuite/g++.dg/gcov/gcov-2.C
+===================================================================
+--- gcc/testsuite/g++.dg/gcov/gcov-2.C	(revision 201681)
++++ gcc/testsuite/g++.dg/gcov/gcov-2.C	(working copy)
+@@ -1,7 +1,8 @@
+ /* Verify line coverage counts for simple member functions. */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ class C {
+ public:
+Index: gcc/testsuite/g++.dg/gcov/gcov-3.C
+===================================================================
+--- gcc/testsuite/g++.dg/gcov/gcov-3.C	(revision 201681)
++++ gcc/testsuite/g++.dg/gcov/gcov-3.C	(working copy)
+@@ -1,8 +1,9 @@
+ /* Check that gcov doesn't abort when a static object is defined
+    within a header file.  */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ #include "gcov-3.h"
+ 
+Index: gcc/testsuite/g++.dg/gcov/gcov-4.C
+===================================================================
+--- gcc/testsuite/g++.dg/gcov/gcov-4.C	(revision 201681)
++++ gcc/testsuite/g++.dg/gcov/gcov-4.C	(working copy)
+@@ -3,8 +3,9 @@
+ 
+ #include <stdio.h>
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage -fno-exceptions" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage -fno-exceptions"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage -fno-exceptions "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ class foo {
+ public:
+Index: gcc/testsuite/g++.dg/gcov/gcov-5.C
+===================================================================
+--- gcc/testsuite/g++.dg/gcov/gcov-5.C	(revision 201681)
++++ gcc/testsuite/g++.dg/gcov/gcov-5.C	(working copy)
+@@ -4,8 +4,9 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage -fno-inline" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage -fno-inline"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage -fno-inline "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ class A {
+   int count;
+Index: gcc/testsuite/g++.dg/ipa/ivinline-1.C
+===================================================================
+--- gcc/testsuite/g++.dg/ipa/ivinline-1.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ipa/ivinline-1.C	(working copy)
+@@ -1,6 +1,6 @@
+ /* Verify that simple virtual calls are inlined even without early
+    inlining.  */
+-/* { dg-do run } */
++/* { dg-do run  { target nonpic } } */
+ /* { dg-options "-O3 -fdump-ipa-inline -fno-early-inlining -fno-ipa-cp"  } */
+ 
+ extern "C" void abort (void);
+Index: gcc/testsuite/g++.dg/ipa/ivinline-2.C
+===================================================================
+--- gcc/testsuite/g++.dg/ipa/ivinline-2.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ipa/ivinline-2.C	(working copy)
+@@ -1,6 +1,6 @@
+ /* Verify that simple virtual calls using this pointer are inlined
+    even without early inlining..  */
+-/* { dg-do run } */
++/* { dg-do run  { target nonpic } } */
+ /* { dg-options "-O3 -fdump-ipa-inline -fno-early-inlining -fno-ipa-cp"  } */
+ 
+ extern "C" void abort (void);
+Index: gcc/testsuite/g++.dg/ipa/ivinline-3.C
+===================================================================
+--- gcc/testsuite/g++.dg/ipa/ivinline-3.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ipa/ivinline-3.C	(working copy)
+@@ -1,6 +1,6 @@
+ /* Verify that simple virtual calls on an object refrence are inlined
+    even without early inlining.  */
+-/* { dg-do run } */
++/* { dg-do run  { target nonpic } } */
+ /* { dg-options "-O3 -fdump-ipa-inline -fno-early-inlining -fno-ipa-cp"  } */
+ 
+ extern "C" void abort (void);
+Index: gcc/testsuite/g++.dg/ipa/ivinline-4.C
+===================================================================
+--- gcc/testsuite/g++.dg/ipa/ivinline-4.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ipa/ivinline-4.C	(working copy)
+@@ -1,7 +1,7 @@
+ /* Verify that simple virtual calls are inlined even without early
+    inlining, even when a typecast to an ancestor is involved along the
+    way.  */
+-/* { dg-do run } */
++/* { dg-do run  { target nonpic } } */
+ /* { dg-options "-O3 -fdump-ipa-inline -fno-early-inlining -fno-ipa-cp"  } */
+ 
+ extern "C" void abort (void);
+Index: gcc/testsuite/g++.dg/ipa/ivinline-5.C
+===================================================================
+--- gcc/testsuite/g++.dg/ipa/ivinline-5.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ipa/ivinline-5.C	(working copy)
+@@ -1,6 +1,6 @@
+ /* Verify that virtual call inlining does not pick a wrong method when
+    there is a user defined ancestor in an object.  */
+-/* { dg-do run } */
++/* { dg-do run  { target nonpic } } */
+ /* { dg-options "-O3 -fdump-ipa-inline -fno-early-inlining -fno-ipa-cp"  } */
+ 
+ extern "C" void abort (void);
+Index: gcc/testsuite/g++.dg/ipa/ivinline-7.C
+===================================================================
+--- gcc/testsuite/g++.dg/ipa/ivinline-7.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ipa/ivinline-7.C	(working copy)
+@@ -1,7 +1,7 @@
+ /* Verify that simple virtual calls are inlined even without early
+    inlining, even when a typecast to an ancestor is involved along the
+    way and that ancestor is not the first one with virtual functions.  */
+-/* { dg-do run } */
++/* { dg-do run  { target nonpic } } */
+ /* { dg-options "-O3 -fdump-ipa-inline -fno-early-inlining -fno-ipa-cp"  } */
+ 
+ extern "C" void abort (void);
+Index: gcc/testsuite/g++.dg/ipa/ivinline-8.C
+===================================================================
+--- gcc/testsuite/g++.dg/ipa/ivinline-8.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ipa/ivinline-8.C	(working copy)
+@@ -1,6 +1,6 @@
+ /* Verify that virtual calls are inlined (ithout early inlining) even
+    when their caller is itself indirectly inlined.  */
+-/* { dg-do run } */
++/* { dg-do run  { target nonpic } } */
+ /* { dg-options "-O3 -fdump-ipa-inline -fno-early-inlining -fno-ipa-cp"  } */
+ 
+ extern "C" void abort (void);
+Index: gcc/testsuite/g++.dg/ipa/ivinline-9.C
+===================================================================
+--- gcc/testsuite/g++.dg/ipa/ivinline-9.C	(revision 201681)
++++ gcc/testsuite/g++.dg/ipa/ivinline-9.C	(working copy)
+@@ -2,7 +2,7 @@
+    inlining, even when a typecast to an ancestor is involved along the
+    way and that ancestor itself has an ancestor wich is not the
+    primary base class.  */
+-/* { dg-do run } */
++/* { dg-do run  { target nonpic } } */
+ /* { dg-options "-O3 -fdump-ipa-inline -fno-early-inlining -fno-ipa-cp"  } */
+ 
+ extern "C" void abort (void);
+Index: gcc/testsuite/g++.dg/pr44486.C
+===================================================================
+--- gcc/testsuite/g++.dg/pr44486.C	(revision 201681)
++++ gcc/testsuite/g++.dg/pr44486.C	(working copy)
+@@ -7,4 +7,5 @@
+ 
+ int main() { f(); }
+ 
+-// { dg-final { scan-assembler "S \{anonymous\}::f" } }
++// { dg-final { scan-assembler "S \{anonymous\}::f" { target { ! *-*-android* } } } }
++// { dg-final { scan-assembler "S \\(anonymous namespace\\)::f" { target { *-*-android* } } } }
+Index: gcc/testsuite/g++.dg/torture/pr39732.C
+===================================================================
+--- gcc/testsuite/g++.dg/torture/pr39732.C	(revision 201681)
++++ gcc/testsuite/g++.dg/torture/pr39732.C	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do compile } */
+-/* { dg-options "-fprofile-generate" } */
++/* { dg-options "-fprofile-generate"  } */
++/* { dg-options "-fprofile-generate "  } */
+ 
+ template<class _CharT>     struct char_traits;
+ template<typename _OI>
+Index: gcc/testsuite/g++.dg/torture/pr40642.C
+===================================================================
+--- gcc/testsuite/g++.dg/torture/pr40642.C	(revision 201681)
++++ gcc/testsuite/g++.dg/torture/pr40642.C	(working copy)
+@@ -1,5 +1,6 @@
+ // { dg-do compile }
+-// { dg-options "-fprofile-generate" }
++// { dg-options "-fprofile-generate"  }
++// { dg-options "-fprofile-generate "  }
+ 
+ // GCC used to ICE with some EH edge missing.
+ 
+Index: gcc/testsuite/g++.dg/tree-prof/indir-call-prof.C
+===================================================================
+--- gcc/testsuite/g++.dg/tree-prof/indir-call-prof.C	(revision 201681)
++++ gcc/testsuite/g++.dg/tree-prof/indir-call-prof.C	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" { target { ! *-*-android* } } } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-profile" { target { *-*-android* } } } */
+ 
+ struct A {
+   A () {}
+@@ -33,7 +34,8 @@
+   return 0;
+ }
+ 
+-/* { dg-final-use { scan-ipa-dump "Indirect call -> direct call.* AA transformation on insn" "tree_profile_ipa" } } */
++/* { dg-final-use { scan-ipa-dump "Indirect call -> direct call.* AA transformation on insn" "tree_profile_ipa"  { target { ! *-*-android* } } } } */
++/* { dg-final-use { scan-ipa-dump "Indirect call -> direct call.* AA transformation on insn" "profile"  { target { *-*-android* } } } } */
+ /* { dg-final-use { scan-tree-dump-not "Invalid sum" "optimized" } } */
+ /* { dg-final-use { cleanup-tree-dump "optimized" } } */
+-/* { dg-final-use { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final-use { cleanup-ipa-dump "profile" } }  */
+Index: gcc/testsuite/g++.dg/tree-ssa/copyprop.C
+===================================================================
+--- gcc/testsuite/g++.dg/tree-ssa/copyprop.C	(revision 201681)
++++ gcc/testsuite/g++.dg/tree-ssa/copyprop.C	(working copy)
+@@ -1,7 +1,8 @@
+ // PR 39548 verify ssa ICE
+ //
+ // { dg-do compile { target { lp64 } } }
+-// { dg-options  "-Wno-error -fno-exceptions -fno-tree-vrp -O2 -fprofile-generate  -finline-limit=500"  } 
++// { dg-options  "-Wno-error -fno-exceptions -fno-tree-vrp -O2 -fprofile-generate  -finline-limit=500"   } 
++// { dg-options  "-Wno-error -fno-exceptions -fno-tree-vrp -O2 -fprofile-generate  -finline-limit=500 "  }
+ //
+ 
+ #include <map>
+Index: gcc/testsuite/g++.dg/tree-ssa/dom-invalid.C
+===================================================================
+--- gcc/testsuite/g++.dg/tree-ssa/dom-invalid.C	(revision 201681)
++++ gcc/testsuite/g++.dg/tree-ssa/dom-invalid.C	(working copy)
+@@ -1,7 +1,8 @@
+ // PR tree-optimization/39557
+ // invalid post-dom info leads to infinite loop
+ // { dg-do run }
+-// { dg-options "-Wall -fno-exceptions -O2 -fprofile-use -fno-rtti" }
++// { dg-options "-Wall -fno-exceptions -O2 -fprofile-use -fno-rtti" { target { ! *-*-android* } } }
++// { dg-options "-Wall -fno-exceptions -O2 -fprofile-use -fopt-info -fno-rtti" { target { *-*-android* } } }
+ 
+ struct C
+ {
+Index: gcc/testsuite/g++.dg/uninit-pred-3_b.C
+===================================================================
+--- gcc/testsuite/g++.dg/uninit-pred-3_b.C	(revision 201681)
++++ gcc/testsuite/g++.dg/uninit-pred-3_b.C	(working copy)
+@@ -65,7 +65,7 @@
+ 
+   void P (int64 t)
+     {
+-      int cc; /* { dg-excess-errors "note: 'cc' was declared here" } */
++      int cc;
+       if (!GetC (&cc))
+         return;
+ 
+Index: gcc/testsuite/g++.dg/warn/Wconversion-null-2.C
+===================================================================
+--- gcc/testsuite/g++.dg/warn/Wconversion-null-2.C	(revision 201681)
++++ gcc/testsuite/g++.dg/warn/Wconversion-null-2.C	(working copy)
+@@ -44,6 +44,6 @@
+   k(NULL);   // { dg-warning "" } converting NULL to int
+   g(NULL);   // { dg-warning "" } converting NULL to int
+   h<NULL>(); // No warning: NULL bound to integer template parameter
+-  l(NULL);   // { dg-warning "" } converting NULL to int
++  l(NULL);   // No warning: NULL is used to implicitly instantiate the template
+   NULL && NULL; // No warning: converting NULL to bool is OK
+ }
+Index: gcc/testsuite/g++.dg/warn/Wuninitializable-member.C
+===================================================================
+--- gcc/testsuite/g++.dg/warn/Wuninitializable-member.C	(revision 201681)
++++ gcc/testsuite/g++.dg/warn/Wuninitializable-member.C	(working copy)
+@@ -6,9 +6,9 @@
+ public:
+   void f(){ flag++ ; }
+ };
+-
++// { dg-warning "non-static const member 'int const Y::var' in class without a constructor" "" { target i?86-*-android* } 11 }
+ class Y {
+-  const int var;// { dg-warning "non-static const member 'const int Y::var' in class without a constructor" }
++  const int var;// { dg-warning "non-static const member 'const int Y::var' in class without a constructor" "" { target ! i?86-*-android* } }
+ public:
+   int g(){ return 2*var; }
+ };
+Index: gcc/testsuite/g++.dg/warn/pr35711.C
+===================================================================
+--- gcc/testsuite/g++.dg/warn/pr35711.C	(revision 201681)
++++ gcc/testsuite/g++.dg/warn/pr35711.C	(working copy)
+@@ -4,5 +4,6 @@
+ 
+ int* foo (volatile int *p)
+ {
+-  return (int*)p; // { dg-warning "cast from type 'volatile int\\*' to type 'int\\*' casts away qualifiers" }
++// { dg-warning "cast from type 'volatile int\\*' to type 'int\\*' casts away qualifiers" { target { ! *-*-android* } } 8 }
++  return (int*)p; // { dg-warning "cast from type 'int volatile\\*' to type 'int\\*' casts away qualifiers" { target { *-*-android* } } }
+ }
+Index: gcc/testsuite/g++.old-deja/g++.abi/cxa_vec.C
+===================================================================
+--- gcc/testsuite/g++.old-deja/g++.abi/cxa_vec.C	(revision 201681)
++++ gcc/testsuite/g++.old-deja/g++.abi/cxa_vec.C	(working copy)
+@@ -5,6 +5,7 @@
+ // are resolved when the kernel is linked.
+ // { dg-do run { xfail { powerpc-ibm-aix* || vxworks_kernel } } }
+ // { dg-options "-flat_namespace" { target *-*-darwin[67]* } }
++// { dg-options "-static" { target { *-*-mingw* *-*-android* } } }
+ // Test __cxa_vec routines
+ // Copyright (C) 2000, 2005 Free Software Foundation, Inc.
+ // Contributed by Nathan Sidwell 7 Apr 2000 <nathan@nathan@codesourcery.com>
+Index: gcc/testsuite/g++.old-deja/g++.brendan/new3.C
+===================================================================
+--- gcc/testsuite/g++.old-deja/g++.brendan/new3.C	(revision 201681)
++++ gcc/testsuite/g++.old-deja/g++.brendan/new3.C	(working copy)
+@@ -5,6 +5,7 @@
+ // are resolved when the kernel is linked.
+ // { dg-do run { xfail { powerpc-ibm-aix* || vxworks_kernel } } }
+ // { dg-options "-flat_namespace" { target *-*-darwin[67]* } }
++// { dg-options "-static" { target { *-*-mingw* *-*-android* } } }
+ // GROUPS passed operator-new
+ #include <stdio.h>
+ #include <stdlib.h>
+Index: gcc/testsuite/g++.old-deja/g++.jason/report.C
+===================================================================
+--- gcc/testsuite/g++.old-deja/g++.jason/report.C	(revision 201681)
++++ gcc/testsuite/g++.old-deja/g++.jason/report.C	(working copy)
+@@ -73,5 +73,5 @@
+    undef3 (1); // { dg-error "" } implicit declaration
+ }				// { dg-warning "no return statement" }
+ 
+-// { dg-message "warning: control reaches end of non-void function" "" { target *-*-* } 36 }
+-// { dg-message "warning: control reaches end of non-void function" "" { target *-*-* } 65 }
++// { dg-message "warning: control reaches end of non-void function" "" { target { ! *-*-android* } } 36 }
++// { dg-message "warning: control reaches end of non-void function" "" { target { ! *-*-android* } } 65 }
+Index: gcc/testsuite/g++.old-deja/g++.other/init18.C
+===================================================================
+--- gcc/testsuite/g++.old-deja/g++.other/init18.C	(revision 201681)
++++ gcc/testsuite/g++.old-deja/g++.other/init18.C	(working copy)
+@@ -5,7 +5,7 @@
+ //
+ // Any platform that doesn't have proper __cxa_atexit support will also fail.
+ //
+-// { dg-do run }
++// { dg-do run { xfail { *-*-android* } } }
+ // { dg-require-effective-target unwrapped }
+ // { dg-require-effective-target cxa_atexit }
+ 
+Index: gcc/testsuite/g++.old-deja/g++.other/init19.C
+===================================================================
+--- gcc/testsuite/g++.old-deja/g++.other/init19.C	(revision 201681)
++++ gcc/testsuite/g++.old-deja/g++.other/init19.C	(working copy)
+@@ -1,4 +1,4 @@
+-// { dg-do run { xfail { { ! cxa_atexit } && { ! { mips-sgi-irix* *-*-solaris2* } } } } }
++// { dg-do run { xfail { *-*-android* || { { ! cxa_atexit } && { ! { mips-sgi-irix* *-*-solaris2* } } } } } }
+ #include <stdlib.h>
+ 
+ #define assert(x) do { if (! (x)) abort(); } while (0)
+Index: gcc/testsuite/g++.old-deja/g++.other/null3.C
+===================================================================
+--- gcc/testsuite/g++.old-deja/g++.other/null3.C	(revision 201681)
++++ gcc/testsuite/g++.old-deja/g++.other/null3.C	(working copy)
+@@ -2,5 +2,5 @@
+ 
+ void x()
+ {
+- int* p = 1==0;
++ int* p = 1==0; // { dg-warning "converting 'false' to pointer" { target { *-*-android*  } } }
+ }
+Index: gcc/testsuite/g++.old-deja/g++.pt/memtemp77.C
+===================================================================
+--- gcc/testsuite/g++.old-deja/g++.pt/memtemp77.C	(revision 201681)
++++ gcc/testsuite/g++.old-deja/g++.pt/memtemp77.C	(working copy)
+@@ -19,7 +19,7 @@
+ int main()
+ {
+   if (strcmp (S3<double>::h(7), 
+-	      "static const char* S3<T>::h(U) [with U = int, T = double]") == 0)
++	      "static char const* S3<T>::h(U) [with U = int, T = double]") == 0)
+     return 0;
+   else 
+     return 1;
+Index: gcc/testsuite/gcc.c-torture/compile/pr44686.c
+===================================================================
+--- gcc/testsuite/gcc.c-torture/compile/pr44686.c	(revision 201681)
++++ gcc/testsuite/gcc.c-torture/compile/pr44686.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fipa-pta -fprofile-generate" } */
++/* { dg-options "-O2 -fipa-pta -fprofile-generate"  } */
++/* { dg-options "-O2 -fipa-pta -fprofile-generate "  } */
+ void *
+ memcpy (void *a, const void *b, __SIZE_TYPE__ len)
+ {
+Index: gcc/testsuite/gcc.dg/20020201-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/20020201-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/20020201-1.c	(working copy)
+@@ -7,6 +7,8 @@
+ /* { dg-options "-fprofile-arcs" } */
+ /* { dg-do run { target native } } */
+ 
++#include <stdlib.h>
++
+ extern void abort (void);
+ extern void exit (int);
+ 
+Index: gcc/testsuite/gcc.dg/20050309-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/20050309-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/20050309-1.c	(working copy)
+@@ -2,7 +2,8 @@
+    output reloads.  */
+ 
+ /* { dg-do compile } */
+-/* { dg-options "-O2 -fprofile-generate" } */
++/* { dg-options "-O2 -fprofile-generate"  } */
++/* { dg-options "-O2 -fprofile-generate "  } */
+ 
+ char *
+ test(char *ret, int *counter, void *schema,
+Index: gcc/testsuite/gcc.dg/20050330-2.c
+===================================================================
+--- gcc/testsuite/gcc.dg/20050330-2.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/20050330-2.c	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do compile } */
+-/* { dg-options "-O2 -fprofile-generate" } */
++/* { dg-options "-O2 -fprofile-generate"  } */
++/* { dg-options "-O2 -fprofile-generate "  } */
+ 
+ struct S
+ {
+Index: gcc/testsuite/gcc.dg/20051201-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/20051201-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/20051201-1.c	(working copy)
+@@ -2,7 +2,8 @@
+    tree_flow_call_edges_add.  */
+ 
+ /* { dg-do compile } */
+-/* { dg-options "-O1 -fprofile-generate" } */
++/* { dg-options "-O1 -fprofile-generate"  } */
++/* { dg-options "-O1 -fprofile-generate "  } */
+ 
+ static __attribute__ ((always_inline)) void 
+ baz ()
+Index: gcc/testsuite/gcc.dg/attr-ifunc-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/attr-ifunc-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/attr-ifunc-1.c	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do run }  */
++/* { dg-do run { target { ! *-*-android* } } }  */
+ /* { dg-require-ifunc "" } */
+ /* { dg-options "" } */
+ 
+Index: gcc/testsuite/gcc.dg/attr-ifunc-3.c
+===================================================================
+--- gcc/testsuite/gcc.dg/attr-ifunc-3.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/attr-ifunc-3.c	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do run }  */
++/* { dg-do run { target { ! *-*-android* } } }  */
+ /* { dg-require-ifunc "" } */
+ /* { dg-options "" } */
+ 
+Index: gcc/testsuite/gcc.dg/attr-ifunc-4.c
+===================================================================
+--- gcc/testsuite/gcc.dg/attr-ifunc-4.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/attr-ifunc-4.c	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do run }  */
++/* { dg-do run { target { ! *-*-android* } } }  */
+ /* { dg-require-ifunc "" } */
+ /* { dg-options "" } */
+ 
+Index: gcc/testsuite/gcc.dg/attr-ifunc-5.c
+===================================================================
+--- gcc/testsuite/gcc.dg/attr-ifunc-5.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/attr-ifunc-5.c	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do run }  */
++/* { dg-do run { target { ! *-*-android* } } }  */
+ /* { dg-require-ifunc "" } */
+ /* { dg-options "" } */
+ 
+Index: gcc/testsuite/gcc.dg/c99-stdint-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/c99-stdint-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/c99-stdint-1.c	(working copy)
+@@ -12,6 +12,7 @@
+ 
+ #include <limits.h>
+ #include <stdint.h>
++#include <stdint-gcc.h>
+ /* This and the later SIG_ATOMIC_* tests should be appropriately
+    conditioned for any freestanding targets with no <signal.h>.  */
+ #ifndef SIGNAL_SUPPRESS
+Index: gcc/testsuite/gcc.dg/c99-stdint-7.c
+===================================================================
+--- gcc/testsuite/gcc.dg/c99-stdint-7.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/c99-stdint-7.c	(working copy)
+@@ -5,6 +5,7 @@
+ /* { dg-options "-std=iso9899:1999 -fhosted" } */
+ 
+ #include <stdint.h>
++#include <stdint-gcc.h>
+ 
+ /* Exact-width and pointer-holding types are optional.  */
+ #if defined(INT8_MIN) != defined(__INT8_TYPE__)
+Index: gcc/testsuite/gcc.dg/c99-tgmath-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/c99-tgmath-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/c99-tgmath-1.c	(working copy)
+@@ -4,6 +4,7 @@
+ /* { dg-options "-std=iso9899:1999" } */
+ /* { dg-add-options c99_runtime } */
+ /* { dg-skip-if "<complex.h> missing" { alpha*-dec-osf5* } } */
++/* { dg-skip-if "tgmath.h: No such file or directory" { *-*-android* } } */
+ 
+ /* Test that tgmath defines the macros it's supposed to. */
+ #include <tgmath.h>
+Index: gcc/testsuite/gcc.dg/c99-tgmath-2.c
+===================================================================
+--- gcc/testsuite/gcc.dg/c99-tgmath-2.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/c99-tgmath-2.c	(working copy)
+@@ -4,6 +4,7 @@
+ /* { dg-options "-std=iso9899:1999" } */
+ /* { dg-add-options c99_runtime } */
+ /* { dg-skip-if "<complex.h> missing" { alpha*-dec-osf5* } } */
++/* { dg-skip-if "tgmath.h: No such file or directory" { *-*-android* } } */
+ 
+ /* Test that invoking type-generic sin on a float invokes sinf. */
+ #include <tgmath.h>
+Index: gcc/testsuite/gcc.dg/c99-tgmath-3.c
+===================================================================
+--- gcc/testsuite/gcc.dg/c99-tgmath-3.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/c99-tgmath-3.c	(working copy)
+@@ -4,6 +4,7 @@
+ /* { dg-options "-std=iso9899:1999" } */
+ /* { dg-add-options c99_runtime } */
+ /* { dg-skip-if "<complex.h> missing" { alpha*-dec-osf5* } } */
++/* { dg-skip-if "tgmath.h: No such file or directory" { *-*-android* } } */
+ 
+ /* Test that invoking type-generic exp on a complex invokes cexp. */
+ #include <tgmath.h>
+Index: gcc/testsuite/gcc.dg/c99-tgmath-4.c
+===================================================================
+--- gcc/testsuite/gcc.dg/c99-tgmath-4.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/c99-tgmath-4.c	(working copy)
+@@ -4,6 +4,7 @@
+ /* { dg-options "-std=iso9899:1999" } */
+ /* { dg-add-options c99_runtime } */
+ /* { dg-skip-if "<complex.h> missing" { alpha*-dec-osf5* } } */
++/* { dg-skip-if "tgmath.h: No such file or directory" { *-*-android* } } */
+ 
+ /* Test that invoking type-generic pow on complex float invokes cpowf. */
+ #include <tgmath.h>
+Index: gcc/testsuite/gcc.dg/cleanup-10.c
+===================================================================
+--- gcc/testsuite/gcc.dg/cleanup-10.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/cleanup-10.c	(working copy)
+@@ -1,4 +1,5 @@
+ /* { dg-do run { target hppa*-*-hpux* *-*-linux* powerpc*-*-darwin* *-*-darwin[912]* } } */
++/* { dg-skip-if "" { *-*-android*  } { "*" } { "" } } */
+ /* { dg-options "-fexceptions -fnon-call-exceptions -O2" } */
+ /* Verify that cleanups work with exception handling through signal frames
+    on alternate stack.  */
+Index: gcc/testsuite/gcc.dg/cleanup-11.c
+===================================================================
+--- gcc/testsuite/gcc.dg/cleanup-11.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/cleanup-11.c	(working copy)
+@@ -1,4 +1,5 @@
+ /* { dg-do run { target hppa*-*-hpux* *-*-linux* powerpc*-*-darwin* *-*-darwin[912]* } } */
++/* { dg-skip-if "" { *-*-android*  } { "*" } { "" } } */
+ /* { dg-options "-fexceptions -fnon-call-exceptions -O2" } */
+ /* Verify that cleanups work with exception handling through realtime signal
+    frames on alternate stack.  */
+Index: gcc/testsuite/gcc.dg/cleanup-8.c
+===================================================================
+--- gcc/testsuite/gcc.dg/cleanup-8.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/cleanup-8.c	(working copy)
+@@ -1,4 +1,5 @@
+ /* { dg-do run { target hppa*-*-hpux* *-*-linux* powerpc*-*-darwin* *-*-darwin[912]* } } */
++/* { dg-skip-if "" { *-*-android*  } { "*" } { "" } } */
+ /* { dg-options "-fexceptions -fnon-call-exceptions -O2" } */
+ /* Verify that cleanups work with exception handling through signal
+    frames.  */
+Index: gcc/testsuite/gcc.dg/cleanup-9.c
+===================================================================
+--- gcc/testsuite/gcc.dg/cleanup-9.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/cleanup-9.c	(working copy)
+@@ -1,4 +1,5 @@
+ /* { dg-do run { target hppa*-*-hpux* *-*-linux* powerpc*-*-darwin* *-*-darwin[912]* } } */
++/* { dg-skip-if "" { *-*-android*  } { "*" } { "" } } */
+ /* { dg-options "-fexceptions -fnon-call-exceptions -O2" } */
+ /* Verify that cleanups work with exception handling through realtime
+    signal frames.  */
+Index: gcc/testsuite/gcc.dg/const-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/const-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/const-1.c	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do compile } */
++/* { dg-do compile { target nonpic } } */
+ /* { dg-options "-O2 -Wsuggest-attribute=const" } */
+ 
+ extern int extern_const(int a) __attribute__ ((const));
+Index: gcc/testsuite/gcc.dg/cpp/assert4.c
+===================================================================
+--- gcc/testsuite/gcc.dg/cpp/assert4.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/cpp/assert4.c	(working copy)
+@@ -7,7 +7,7 @@
+ 
+ /* Check for #system assertions.  */
+ 
+-#if defined __gnu_linux__
++#if defined __linux__
+ # if !#system(linux) || !#system(unix) || !#system(posix)
+ #  error
+ # endif
+Index: gcc/testsuite/gcc.dg/cpp/trad/include.c
+===================================================================
+--- gcc/testsuite/gcc.dg/cpp/trad/include.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/cpp/trad/include.c	(working copy)
+@@ -4,8 +4,12 @@
+ 
+ /* vxWorksCommon.h uses the "#" operator to construct the name of an
+    include file, thus making the file incompatible with -traditional-cpp.
+-   Newlib uses ## when including stdlib.h as of 2007-09-07.  */
+-/* { dg-do preprocess { target { { ! vxworks_kernel } && { ! newlib } } } } */
++   Newlib uses ## when including stdlib.h as of 2007-09-07.
++   -ftraditional-cpp is not expected to work on Android due to variadic macro
++   (like #define __builtin_warning(x, y...)) in standard headers. Traditional
++   preprocessor cannot handle them.
++   The PROBLEM IS SOLVED in TRUNK (4.9.0 version) #1568 */
++/* { dg-do preprocess { target { { { ! vxworks_kernel } && { ! newlib } } && { ! *-*-android* } } } } */
+ 
+ #define __STDC__ 1		/* Stop complaints about non-ISO compilers.  */
+ #define stdlib 1
+Index: gcc/testsuite/gcc.dg/cproj-fails-with-broken-glibc.c
+===================================================================
+--- gcc/testsuite/gcc.dg/cproj-fails-with-broken-glibc.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/cproj-fails-with-broken-glibc.c	(working copy)
+@@ -7,7 +7,7 @@
+ 
+    Origin: Kaveh R. Ghazi,  April 20, 2010.  */
+ 
+-/* { dg-do run } */
++/* { dg-do run { target { ! "*-*-android*" } } } */
+ /* { dg-options "-fno-builtin-cproj" } */
+ /* { dg-add-options c99_runtime } */
+ /* { dg-require-effective-target c99_runtime } */
+Index: gcc/testsuite/gcc.dg/dfp/convert-dfp-round-thread.c
+===================================================================
+--- gcc/testsuite/gcc.dg/dfp/convert-dfp-round-thread.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/dfp/convert-dfp-round-thread.c	(working copy)
+@@ -1,6 +1,8 @@
+ /* { dg-options "-std=gnu99 -D_GNU_SOURCE -pthread" } */
+ /* { dg-do run { target i?86-*-linux* x86_64-*-linux* } } */
++/* { dg-skip-if "" { i?86-*-android*  } { "*" } { "" } } */
+ 
++
+ /* N1150 5.2: Conversions among decimal floating types and between
+    decimal floating types and generic floating types.
+    C99 6.3.1.5(3) New.
+Index: gcc/testsuite/gcc.dg/gomp/pr27573.c
+===================================================================
+--- gcc/testsuite/gcc.dg/gomp/pr27573.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/gomp/pr27573.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* PR middle-end/27573 */
+ /* { dg-do compile } */
+-/* { dg-options "-O2 -fopenmp -fprofile-generate" } */
++/* { dg-options "-O2 -fopenmp -fprofile-generate"  } */
++/* { dg-options "-O2 -fopenmp -fprofile-generate "  } */
+ 
+ extern int puts (const char *);
+ 
+Index: gcc/testsuite/gcc.dg/graphite/block-4.c
+===================================================================
+--- gcc/testsuite/gcc.dg/graphite/block-4.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/graphite/block-4.c	(working copy)
+@@ -1,4 +1,5 @@
+ /* { dg-require-effective-target size32plus } */
++/* { dg-require-effective-target run_expensive_tests }  PR testsuite/48283 */
+ 
+ #define DEBUG 0
+ #if DEBUG
+Index: gcc/testsuite/gcc.dg/graphite/id-pr44676.c
+===================================================================
+--- gcc/testsuite/gcc.dg/graphite/id-pr44676.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/graphite/id-pr44676.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fgraphite-identity -fprofile-generate" } */
++/* { dg-options "-O2 -fgraphite-identity -fprofile-generate"  } */
++/* { dg-options "-O2 -fgraphite-identity -fprofile-generate "  } */
+ 
+ int
+ extend_options (int h, int map, int x, int y, int dx)
+Index: gcc/testsuite/gcc.dg/graphite/scop-19.c
+===================================================================
+--- gcc/testsuite/gcc.dg/graphite/scop-19.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/graphite/scop-19.c	(working copy)
+@@ -29,6 +29,7 @@
+   if (need > dgs->alc)
+     d_growable_string_resize (dgs, need);
+ }
+-/* { dg-final { scan-tree-dump-times "number of SCoPs: 0" 2 "graphite"} } */ 
++/* { dg-final { scan-tree-dump-times "number of SCoPs: 0" 1 "graphite" { target { ! nonpic } } } } */
++/* { dg-final { scan-tree-dump-times "number of SCoPs: 0" 2 "graphite" { target { nonpic } } } } */
+ /* { dg-final { cleanup-tree-dump "graphite" } } */
+ 
+Index: gcc/testsuite/gcc.dg/ipa/pure-const-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/ipa/pure-const-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/ipa/pure-const-1.c	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do compile } */
++/* { dg-do compile { target nonpic } } */
+ /* { dg-options "-O3 -fdump-tree-local-pure-const1 -fdump-ipa-pure-const -fdump-tree-optimized -fno-early-inlining" } */
+ void abort (void);
+ int error_code;
+Index: gcc/testsuite/gcc.dg/lto/20081210-1_0.c
+===================================================================
+--- gcc/testsuite/gcc.dg/lto/20081210-1_0.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/lto/20081210-1_0.c	(working copy)
+@@ -1,3 +1,5 @@
++#include <stdlib.h>
++
+ #if defined(_LP64)
+ typedef unsigned long int uintptr_t;
+ #elif defined (_WIN64)
+Index: gcc/testsuite/gcc.dg/matrix/matrix.exp
+===================================================================
+--- gcc/testsuite/gcc.dg/matrix/matrix.exp	(revision 201681)
++++ gcc/testsuite/gcc.dg/matrix/matrix.exp	(working copy)
+@@ -60,6 +65,10 @@
+     if ![runtest_file_p $runtests $src] then {
+         continue
+     }
++    #This test is flacky and dangerous and will be skipped for our case
++    if {[string match $src "$srcdir/$subdir/transpose-3.c"]} then {
++        continue
++    }
+     profopt-execute $src
+ }
+ 
+Index: gcc/testsuite/gcc.dg/matrix/transpose-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/matrix/transpose-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/matrix/transpose-1.c	(working copy)
+@@ -52,7 +52,7 @@
+ /*--------------------------------------------------------------------------*/
+ /* Dynamic memory allocations and initializations                           */
+ 
+-void
++__attribute__((noinline)) void
+ mem_init (void)
+ {
+ 
+@@ -95,4 +95,3 @@
+ /* { dg-final-use { scan-ipa-dump-times "Flattened 3 dimensions" 1 "matrix-reorg"  } } */
+ /* { dg-final-use { scan-ipa-dump-times "Transposed" 3 "matrix-reorg"  } } */
+ /* { dg-final-use { cleanup-ipa-dump "matrix-reorg" } } */
+-
+Index: gcc/testsuite/gcc.dg/matrix/transpose-2.c
+===================================================================
+--- gcc/testsuite/gcc.dg/matrix/transpose-2.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/matrix/transpose-2.c	(working copy)
+@@ -50,7 +50,7 @@
+ /*--------------------------------------------------------------------------*/
+ /* Dynamic memory allocations and initializations                           */
+ 
+-void
++__attribute__((noinline)) void
+ mem_init (void)
+ {
+ 
+Index: gcc/testsuite/gcc.dg/matrix/transpose-3.c
+===================================================================
+--- gcc/testsuite/gcc.dg/matrix/transpose-3.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/matrix/transpose-3.c	(working copy)
+@@ -54,7 +54,7 @@
+ /*--------------------------------------------------------------------------*/
+ /* Dynamic memory allocations and initializations                           */
+ 
+-void
++__attribute__((noinline)) void
+ mem_init (void)
+ {
+ 
+Index: gcc/testsuite/gcc.dg/matrix/transpose-4.c
+===================================================================
+--- gcc/testsuite/gcc.dg/matrix/transpose-4.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/matrix/transpose-4.c	(working copy)
+@@ -52,7 +52,7 @@
+ /*--------------------------------------------------------------------------*/
+ /* Dynamic memory allocations and initializations                           */
+ 
+-void
++__attribute__((noinline)) void
+ mem_init (void)
+ {
+ 
+Index: gcc/testsuite/gcc.dg/matrix/transpose-5.c
+===================================================================
+--- gcc/testsuite/gcc.dg/matrix/transpose-5.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/matrix/transpose-5.c	(working copy)
+@@ -49,7 +49,7 @@
+ /*--------------------------------------------------------------------------*/
+ /* Dynamic memory allocations and initializations                           */
+ 
+-void
++__attribute__((noinline)) void
+ mem_init (void)
+ {
+ 
+Index: gcc/testsuite/gcc.dg/matrix/transpose-6.c
+===================================================================
+--- gcc/testsuite/gcc.dg/matrix/transpose-6.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/matrix/transpose-6.c	(working copy)
+@@ -49,7 +49,7 @@
+ /*--------------------------------------------------------------------------*/
+ /* Dynamic memory allocations and initializations                           */
+ 
+-void
++__attribute__((noinline)) void
+ mem_init (void)
+ {
+ 
+Index: gcc/testsuite/gcc.dg/noreturn-8.c
+===================================================================
+--- gcc/testsuite/gcc.dg/noreturn-8.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/noreturn-8.c	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do run } */
++/* { dg-do run { target nonpic } } */
+ /* { dg-options "-O2" } */
+ void exit (int);
+ void noreturn_autodetection_failed ();
+Index: gcc/testsuite/gcc.dg/pr26570.c
+===================================================================
+--- gcc/testsuite/gcc.dg/pr26570.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/pr26570.c	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do compile } */
+-/* { dg-options "-O2 -fprofile-generate -fprofile-use" } */
++/* { dg-options "-O2 -fprofile-generate -fprofile-use"  } */
++/* { dg-options "-O2 -fprofile-generate -fprofile-use "  } */
+ 
+ unsigned test (unsigned a, unsigned b)
+ {
+Index: gcc/testsuite/gcc.dg/pr41837.c
+===================================================================
+--- gcc/testsuite/gcc.dg/pr41837.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/pr41837.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* PR middle-end/41837 */
+ /* { dg-do compile } */
+-/* { dg-options "-fipa-struct-reorg -O -fwhole-program -fprofile-generate" } */
++/* { dg-options "-fipa-struct-reorg -O -fwhole-program -fprofile-generate"  } */
++/* { dg-options "-fipa-struct-reorg -O -fwhole-program -fprofile-generate "  } */
+ 
+ typedef struct { int a, b; } T1;
+ typedef struct S1 *T2;
+Index: gcc/testsuite/gcc.dg/pr42427.c
+===================================================================
+--- gcc/testsuite/gcc.dg/pr42427.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/pr42427.c	(working copy)
+@@ -2,6 +2,7 @@
+ /* { dg-options "-O2 -fexceptions -fnon-call-exceptions -fpeel-loops" } */
+ /* { dg-add-options c99_runtime } */
+ /* { dg-require-effective-target ilp32 } */
++/* { dg-skip-if "complex.h: No such file or directory" { *-*-android* } } */
+ 
+ #include <complex.h>
+ 
+Index: gcc/testsuite/gcc.dg/pr44674.c
+===================================================================
+--- gcc/testsuite/gcc.dg/pr44674.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/pr44674.c	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do compile } */
+-/* { dg-options "-O -fprofile-generate" } */
++/* { dg-options "-O -fprofile-generate"  } */
++/* { dg-options "-O -fprofile-generate "  } */
+ 
+ void
+ jumpfunc (void *p)
+Index: gcc/testsuite/gcc.dg/pr45352-3.c
+===================================================================
+--- gcc/testsuite/gcc.dg/pr45352-3.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/pr45352-3.c	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do compile { target powerpc*-*-* ia64-*-* x86_64-*-* } } */
+-/* { dg-options "-O -fprofile-generate -fgcse -fno-gcse-lm -fgcse-sm -fno-ivopts -fno-tree-loop-im -ftree-pre -funroll-loops -fno-web -fschedule-insns2 -fselective-scheduling2 -fsel-sched-pipelining" } */
++/* { dg-options "-O -fprofile-generate -fgcse -fno-gcse-lm -fgcse-sm -fno-ivopts -fno-tree-loop-im -ftree-pre -funroll-loops -fno-web -fschedule-insns2 -fselective-scheduling2 -fsel-sched-pipelining"  } */
++/* { dg-options "-O -fprofile-generate -fgcse -fno-gcse-lm -fgcse-sm -fno-ivopts -fno-tree-loop-im -ftree-pre -funroll-loops -fno-web -fschedule-insns2 -fselective-scheduling2 -fsel-sched-pipelining "  } */
+ 
+ extern volatile float f[];
+ 
+Index: gcc/testsuite/gcc.dg/pr45352.c
+===================================================================
+--- gcc/testsuite/gcc.dg/pr45352.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/pr45352.c	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do compile { target powerpc*-*-* ia64-*-* x86_64-*-* } } */
+-/* { dg-options "-Os -fselective-scheduling2 -fsel-sched-pipelining -fprofile-generate" } */
++/* { dg-options "-Os -fselective-scheduling2 -fsel-sched-pipelining -fprofile-generate"  } */
++/* { dg-options "-Os -fselective-scheduling2 -fsel-sched-pipelining -fprofile-generate "  } */
+ 
+ static inline void
+ bmp_iter_next (int *bi, int *bit_no)
+Index: gcc/testsuite/gcc.dg/pr46255.c
+===================================================================
+--- gcc/testsuite/gcc.dg/pr46255.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/pr46255.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* PR debug/46255 */
+ /* { dg-do compile } */
+-/* { dg-options "-fcompare-debug -fprofile-generate -O" } */
++/* { dg-options "-fcompare-debug -fprofile-generate -O"  } */
++/* { dg-options "-fcompare-debug -fprofile-generate -O "  } */
+ 
+ int bar (void);
+ 
+Index: gcc/testsuite/gcc.dg/pr46521.c
+===================================================================
+--- gcc/testsuite/gcc.dg/pr46521.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/pr46521.c	(working copy)
+@@ -1,6 +1,6 @@
+ /* { dg-do compile { target powerpc*-*-* ia64-*-* x86_64-*-* } } */
+-/* { dg-options "-Os -fselective-scheduling2 -fsel-sched-pipelining -fprofile-generate -fno-early-inlining" } */
+-
++/* { dg-options "-Os -fselective-scheduling2 -fsel-sched-pipelining -fprofile-generate -fno-early-inlining"  } */
++/* { dg-options "-Os -fselective-scheduling2 -fsel-sched-pipelining -fprofile-generate -fno-early-inlining "  } */
+ static void bmp_iter_next (int *bi)
+ {
+   *bi >>= 1;
+Index: gcc/testsuite/gcc.dg/profile-dir-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/profile-dir-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/profile-dir-1.c	(working copy)
+@@ -1,6 +1,8 @@
+ /* { dg-do compile } */
+-/* { dg-options "-O -fprofile-generate=. -fdump-ipa-tree_profile_ipa" } */
+-/* { dg-final { scan-ipa-dump " ./profile-dir-1.gcda" "tree_profile_ipa" } } */
++/* { dg-options "-O -fprofile-generate=. -fdump-ipa-tree_profile_ipa" { target { ! *-*-android* } } } */
++/* { dg-final { scan-ipa-dump " ./profile-dir-1.gcda" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-options "-O -fprofile-generate=. -fdump-ipa-profile" { target { *-*-android* } } } */
++/* { dg-final { scan-ipa-dump " ./profile-dir-1.gcda" "profile" { target { *-*-android* } } } } */
+ 
+ int
+ main(void)
+@@ -8,4 +10,4 @@
+   return 0;
+ }
+ 
+-/* { dg-final { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/profile-dir-2.c
+===================================================================
+--- gcc/testsuite/gcc.dg/profile-dir-2.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/profile-dir-2.c	(working copy)
+@@ -1,6 +1,8 @@
+ /* { dg-do compile } */
+-/* { dg-options "-O -fprofile-generate -fdump-ipa-tree_profile_ipa" } */
+-/* { dg-final { scan-ipa-dump "/profile-dir-2.gcda" "tree_profile_ipa" } } */
++/* { dg-options "-O -fprofile-generate -fdump-ipa-tree_profile_ipa" { target { ! *-*-android* } } } */
++/* { dg-final { scan-ipa-dump "/profile-dir-2.gcda" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-options "-O -fprofile-generate -fdump-ipa-profile" { target { *-*-android* } } } */
++/* { dg-final { scan-ipa-dump "/profile-dir-2.gcda" "profile" { target { *-*-android* } } } } */
+ 
+ int
+ main(void)
+@@ -8,4 +10,4 @@
+   return 0;
+ }
+ 
+-/* { dg-final { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/profile-dir-3.c
+===================================================================
+--- gcc/testsuite/gcc.dg/profile-dir-3.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/profile-dir-3.c	(working copy)
+@@ -1,6 +1,8 @@
+ /* { dg-do compile } */
+-/* { dg-options "-O -fprofile-generate -fprofile-dir=. -fdump-ipa-tree_profile_ipa" } */
+-/* { dg-final { scan-ipa-dump " ./profile-dir-3.gcda" "tree_profile_ipa" } } */
++/* { dg-options "-O -fprofile-generate -fprofile-dir=. -fdump-ipa-tree_profile_ipa" { target { ! *-*-android* } } } */
++/* { dg-final { scan-ipa-dump " ./profile-dir-3.gcda" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-options "-O -fprofile-generate -fprofile-dir=. -fdump-ipa-profile" { target { *-*-android* } } } */
++/* { dg-final { scan-ipa-dump " ./profile-dir-3.gcda" "profile" { target { *-*-android* } } } } */
+ 
+ int
+ main(void)
+@@ -8,4 +10,4 @@
+   return 0;
+ }
+ 
+-/* { dg-final { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/pure-2.c
+===================================================================
+--- gcc/testsuite/gcc.dg/pure-2.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/pure-2.c	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do compile } */
++/* { dg-do compile { target nonpic } } */
+ /* { dg-options "-O2 -Wsuggest-attribute=pure" } */
+ 
+ extern int extern_const(int a) __attribute__ ((pure));
+Index: gcc/testsuite/gcc.dg/split-2.c
+===================================================================
+--- gcc/testsuite/gcc.dg/split-2.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/split-2.c	(working copy)
+@@ -1,7 +1,8 @@
+ /* { dg-do run } */
+ /* { dg-require-effective-target split_stack } */
+ /* { dg-require-effective-target pthread_h } */
+-/* { dg-options "-pthread -fsplit-stack" } */
++/* { dg-options "-pthread -fsplit-stack" { target { ! "*-*-android*" } } } */
++/* { dg-options "-fsplit-stack" { target { "*-*-android*" } } } */
+ 
+ #include <stdlib.h>
+ #include <pthread.h>
+Index: gcc/testsuite/gcc.dg/torture/builtin-convert-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/torture/builtin-convert-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/torture/builtin-convert-1.c	(working copy)
+@@ -8,6 +8,7 @@
+ /* { dg-do link } */
+ /* { dg-options "-ffast-math" } */
+ /* { dg-add-options c99_runtime } */
++/* { dg-skip-if "" { *-*-android*  } { "*" } { "" } } */
+ 
+ #include "../builtins-config.h"
+ 
+Index: gcc/testsuite/gcc.dg/torture/builtin-convert-2.c
+===================================================================
+--- gcc/testsuite/gcc.dg/torture/builtin-convert-2.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/torture/builtin-convert-2.c	(working copy)
+@@ -8,6 +8,7 @@
+ /* { dg-do link } */
+ /* { dg-options "-ffast-math" } */
+ /* { dg-add-options c99_runtime } */
++/* { dg-skip-if "" { *-*-android*  } { "*" } { "" } } */
+ 
+ #include "../builtins-config.h"
+ 
+Index: gcc/testsuite/gcc.dg/torture/builtin-convert-3.c
+===================================================================
+--- gcc/testsuite/gcc.dg/torture/builtin-convert-3.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/torture/builtin-convert-3.c	(working copy)
+@@ -8,6 +8,7 @@
+ /* { dg-do link } */
+ /* { dg-options "-ffast-math" } */
+ /* { dg-add-options c99_runtime } */
++/* { dg-skip-if "" { *-*-android*  } { "*" } { "" } } */
+ 
+ #include "../builtins-config.h"
+ 
+Index: gcc/testsuite/gcc.dg/torture/builtin-power-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/torture/builtin-power-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/torture/builtin-power-1.c	(working copy)
+@@ -8,6 +8,7 @@
+ /* { dg-do link } */
+ /* { dg-options "-ffast-math" } */
+ /* { dg-add-options c99_runtime } */
++/* { dg-skip-if "" { *-*-android*  } { "*" } { "" } } */
+ 
+ #include "../builtins-config.h"
+ 
+Index: gcc/testsuite/gcc.dg/torture/pr45636.c
+===================================================================
+--- gcc/testsuite/gcc.dg/torture/pr45636.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/torture/pr45636.c	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do run } */
++/* { dg-do run { target { ! "*-*-android*" } } } */
+ /* { dg-require-effective-target mempcpy } */
+ /* PR fortran/45636 */
+ 
+Index: gcc/testsuite/gcc.dg/torture/tls/tls-test.c
+===================================================================
+--- gcc/testsuite/gcc.dg/torture/tls/tls-test.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/torture/tls/tls-test.c	(working copy)
+@@ -1,7 +1,8 @@
+ /* { dg-do run }  */
+ /* { dg-require-effective-target tls  }  */
+ /* { dg-require-effective-target pthread } */
+-/* { dg-options "-pthread" } */
++/* { dg-options "-pthread" { target { ! "*-*-android*" } } } */
++/* { dg-options "" { target { "*-*-android*" } } } */
+ 
+ #include <pthread.h>
+ extern int printf (char *,...);
+Index: gcc/testsuite/gcc.dg/tree-prof/ic-misattribution-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-prof/ic-misattribution-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-prof/ic-misattribution-1.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fdump-ipa-tree_profile_ipa" } */
++/* { dg-options "-O2 -fdump-ipa-tree_profile_ipa" { target { ! *-*-android* } } } */
++/* { dg-options "-O2 -fdump-ipa-profile" { target { *-*-android* } } } */
+ /* { dg-additional-sources "ic-misattribution-1a.c" } */
+ 
+ extern void other_caller (void);
+@@ -15,5 +16,6 @@
+   func ();
+ }
+ 
+-/* { dg-final-use { scan-ipa-dump "hist->count 1 hist->all 1" "tree_profile_ipa" } } */
+-/* { dg-final-use { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final-use { scan-ipa-dump "hist->count 1 hist->all 1" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-final-use { scan-ipa-dump "hist->count 1 hist->all 1" "profile" { target { *-*-android* } } } } */
++/* { dg-final-use { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/tree-prof/ic-misattribution-1a.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-prof/ic-misattribution-1a.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-prof/ic-misattribution-1a.c	(working copy)
+@@ -19,4 +19,4 @@
+   return 0;
+ }
+ 
+-/* { dg-final-use { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final-use { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/tree-prof/indir-call-prof.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-prof/indir-call-prof.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-prof/indir-call-prof.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" { target { ! *-*-android* } } } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-profile" { target { *-*-android* } } } */
+ 
+ static int a1 (void)
+ {
+@@ -37,7 +38,8 @@
+   return 0;
+ }
+ 
+-/* { dg-final-use { scan-ipa-dump "Indirect call -> direct call.* a1 transformation on insn" "tree_profile_ipa"} } */
++/* { dg-final-use { scan-ipa-dump "Indirect call -> direct call.* a1 transformation on insn" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-final-use { scan-ipa-dump "Indirect call -> direct call.* a1 transformation on insn" "profile" { target { *-*-android* } } } } */
+ /* { dg-final-use { scan-tree-dump-not "Invalid sum" "optimized"} } */
+ /* { dg-final-use { cleanup-tree-dump "optimized" } } */
+-/* { dg-final-use { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final-use { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/tree-prof/stringop-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-prof/stringop-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-prof/stringop-1.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" { target { ! *-*-android* } } } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-profile" { target { *-*-android* } } } */
+ int a[1000];
+ int b[1000];
+ int size=1;
+@@ -13,10 +14,11 @@
+     }
+    return 0;
+ }
+-/* { dg-final-use { scan-ipa-dump "Single value 4 stringop" "tree_profile_ipa"} } */
++/* { dg-final-use { scan-ipa-dump "Single value 4 stringop" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-final-use { scan-ipa-dump "Single value 4 stringop" "profile" { target { *-*-android* } } } } */
+ /* Really this ought to simplify into assignment, but we are not there yet.  */
+ /* a[0] = b[0] is what we fold the resulting memcpy into.  */
+ /* { dg-final-use { scan-tree-dump " = MEM.*&b" "optimized"} } */
+ /* { dg-final-use { scan-tree-dump "MEM.*&a\\\] = " "optimized"} } */
+ /* { dg-final-use { cleanup-tree-dump "optimized" } } */
+-/* { dg-final-use { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final-use { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/tree-prof/stringop-2.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-prof/stringop-2.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-prof/stringop-2.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" { target { ! *-*-android* } } } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-profile" { target { *-*-android* } } } */
+ int a[1000];
+ int b[1000];
+ int size=1;
+@@ -13,8 +14,9 @@
+     }
+    return 0;
+ }
+-/* { dg-final-use { scan-ipa-dump "Single value 4 stringop" "tree_profile_ipa"} } */
++/* { dg-final-use { scan-ipa-dump "Single value 4 stringop" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-final-use { scan-ipa-dump "Single value 4 stringop" "profile" { target { *-*-android* } } } } */
+ /* The versioned memset of size 4 should be optimized to an assignment.  */
+ /* { dg-final-use { scan-tree-dump "a\\\[0\\\] = 168430090" "optimized"} } */
+ /* { dg-final-use { cleanup-tree-dump "optimized" } } */
+-/* { dg-final-use { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final-use { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/tree-prof/update-loopch.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-prof/update-loopch.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-prof/update-loopch.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fdump-ipa-tree_profile_ipa-blocks -fdump-tree-optimized-blocks" } */
++/* { dg-options "-O2 -fdump-ipa-tree_profile_ipa-blocks -fdump-tree-optimized-blocks" { target { ! *-*-android* } } } */
++/* { dg-options "-O2 -fdump-ipa-profile-blocks -fdump-tree-optimized-blocks" { target { *-*-android* } } } */
+ int max = 33333;
+ int a[8];
+ int
+@@ -14,8 +15,9 @@
+ /* Loop header copying will peel away the initial conditional, so the loop body
+    is once reached directly from entry point of function, rest via loopback
+    edge.  */
+-/* { dg-final-use { scan-ipa-dump "count:33333" "tree_profile_ipa"} } */
++/* { dg-final-use { scan-ipa-dump "count:33333" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-final-use { scan-ipa-dump "count:33333" "profile" { target { *-*-android* } } } } */
+ /* { dg-final-use { scan-tree-dump "count:33332" "optimized"} } */
+ /* { dg-final-use { scan-tree-dump-not "Invalid sum" "optimized"} } */
+-/* { dg-final-use { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final-use { cleanup-ipa-dump "profile" } } */
+ /* { dg-final-use { cleanup-tree-dump "optimized" } } */
+Index: gcc/testsuite/gcc.dg/tree-prof/val-prof-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-prof/val-prof-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-prof/val-prof-1.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" { target { ! *-*-android* } } } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-profile" { target { *-*-android* } } } */
+ int a[1000];
+ int b = 256;
+ int c = 257;
+@@ -15,8 +16,9 @@
+     }
+   return 0;
+ }
+-/* { dg-final-use { scan-ipa-dump "Div.mod by constant n_\[0-9\]*=257 transformation on insn" "tree_profile_ipa"} } */
++/* { dg-final-use { scan-ipa-dump "Div.mod by constant n_\[0-9\]*=257 transformation on insn" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-final-use { scan-ipa-dump "Div.mod by constant n_\[0-9\]*=257 transformation on insn" "profile" { target { *-*-android* } } } } */
+ /* { dg-final-use { scan-tree-dump "if \\(n_\[0-9\]* != 257\\)" "optimized"} } */
+ /* { dg-final-use { scan-tree-dump-not "Invalid sum" "optimized"} } */
+ /* { dg-final-use { cleanup-tree-dump "optimized" } } */
+-/* { dg-final-use { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final-use { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/tree-prof/val-prof-2.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-prof/val-prof-2.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-prof/val-prof-2.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" { target { ! *-*-android* } } } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-profile" { target { *-*-android* } } } */
+ unsigned int a[1000];
+ unsigned int b = 256;
+ unsigned int c = 1024;
+@@ -23,10 +24,11 @@
+     }
+   return 0;
+ }
+-/* { dg-final-use { scan-ipa-dump "Mod power of 2 transformation on insn" "tree_profile_ipa" } } */
++/* { dg-final-use { scan-ipa-dump "Mod power of 2 transformation on insn" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-final-use { scan-ipa-dump "Mod power of 2 transformation on insn" "profile" { target { *-*-android* } } } } */
+ /* This is part of code checking that n is power of 2, so we are sure that the transformation
+    didn't get optimized out.  */
+ /* { dg-final-use { scan-tree-dump "n_\[0-9\]* \\+ 0xffff" "optimized"} } */
+ /* { dg-final-use { scan-tree-dump-not "Invalid sum" "optimized"} } */
+ /* { dg-final-use { cleanup-tree-dump "optimized" } } */
+-/* { dg-final-use { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final-use { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/tree-prof/val-prof-3.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-prof/val-prof-3.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-prof/val-prof-3.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" { target { ! *-*-android* } } } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-profile" { target { *-*-android* } } } */
+ unsigned int a[1000];
+ unsigned int b = 257;
+ unsigned int c = 1023;
+@@ -23,10 +24,11 @@
+     }
+   return 0;
+ }
+-/* { dg-final-use { scan-ipa-dump "Mod subtract transformation on insn" "tree_profile_ipa" } } */
++/* { dg-final-use { scan-ipa-dump "Mod subtract transformation on insn" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-final-use { scan-ipa-dump "Mod subtract transformation on insn" "profile" { target { *-*-android* } } } } */
+ /* This is part of code checking that n is greater than the divisor so we are sure that it
+    didn't get optimized out.  */
+ /* { dg-final-use { scan-tree-dump "if \\(n_\[0-9\]* \\>" "optimized"} } */
+ /* { dg-final-use { scan-tree-dump-not "Invalid sum" "optimized"} } */
+ /* { dg-final-use { cleanup-tree-dump "optimized" } } */
+-/* { dg-final-use { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final-use { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/tree-prof/val-prof-4.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-prof/val-prof-4.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-prof/val-prof-4.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" { target { ! *-*-android* } } } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-profile" { target { *-*-android* } } } */
+ unsigned int a[1000];
+ unsigned int b = 999;
+ unsigned int c = 1002;
+@@ -23,10 +24,11 @@
+     }
+   return 0;
+ }
+-/* { dg-final-use { scan-ipa-dump "Mod subtract transformation on insn" "tree_profile_ipa" } } */
++/* { dg-final-use { scan-ipa-dump "Mod subtract transformation on insn" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-final-use { scan-ipa-dump "Mod subtract transformation on insn" "profile" { target { *-*-android* } } } } */
+ /* This is part of code checking that n is greater than the divisor so we are sure that it
+    didn't get optimized out.  */
+ /* { dg-final-use { scan-tree-dump "if \\(n_\[0-9\]* \\>" "optimized"} } */
+ /* { dg-final-use { scan-tree-dump-not "Invalid sum" "optimized"} } */
+ /* { dg-final-use { cleanup-tree-dump "optimized" } } */
+-/* { dg-final-use { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final-use { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/tree-prof/val-prof-5.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-prof/val-prof-5.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-prof/val-prof-5.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-tree_profile_ipa" { target { ! *-*-android* } } } */
++/* { dg-options "-O2 -fdump-tree-optimized -fdump-ipa-profile" { target { *-*-android* } } } */
+ int a[1000];
+ int b=997;
+ main()
+@@ -11,7 +12,8 @@
+ 			a[i]/=b;
+ 	return 0;
+ }
+-/* { dg-final-use { scan-ipa-dump "Div.mod by constant b.*=997 transformation on insn" "tree_profile_ipa" } } */
++/* { dg-final-use { scan-ipa-dump "Div.mod by constant b.*=997 transformation on insn" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-final-use { scan-ipa-dump "Div.mod by constant b.*=997 transformation on insn" "profile" { target { *-*-android* } } } } */
+ /* { dg-final-use { scan-tree-dump-not "Invalid sum" "optimized"} } */
+ /* { dg-final-use { cleanup-tree-dump "optimized" } } */
+-/* { dg-final-use { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final-use { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/tree-prof/val-prof-7.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-prof/val-prof-7.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-prof/val-prof-7.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-options "-O2 -fdump-ipa-tree_profile_ipa -mtune=core2" } */
++/* { dg-options "-O2 -fdump-ipa-tree_profile_ipa -mtune=core2" { target { ! *-*-android* } } } */
++/* { dg-options "-O2 -fdump-ipa-profile -mtune=core2" { target { *-*-android* } } } */
+ /* { dg-skip-if "" { ! { i?86-*-* x86_64-*-* } } { "*" } { "" } } */
+ 
+ #include <strings.h>
+@@ -22,5 +23,6 @@
+   return 0;
+ }
+ 
+-/* { dg-final-use { scan-ipa-dump "Single value 8 stringop transformation on bzero" "tree_profile_ipa" } } */
+-/* { dg-final-use { cleanup-ipa-dump "tree_profile_ipa" } } */
++/* { dg-final-use { scan-ipa-dump "Single value 8 stringop transformation on bzero" "tree_profile_ipa" { target { ! *-*-android* } } } } */
++/* { dg-final-use { scan-ipa-dump "Single value 8 stringop transformation on bzero" "profile" { target { *-*-android* } } } } */
++/* { dg-final-use { cleanup-ipa-dump "profile" } } */
+Index: gcc/testsuite/gcc.dg/tree-ssa/dump-1.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/dump-1.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/dump-1.c	(working copy)
+@@ -1,5 +1,5 @@
+ /* { dg-do compile } */
+-/* { dg-options "-O1 -fdump-tree-profile-details" } */
++/* { dg-options "-O1 -fdump-tree-profile_estimate-details" } */
+ 
+ int f(void)
+ {
+Index: gcc/testsuite/gcc.dg/tree-ssa/gen-vect-11.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/gen-vect-11.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/gen-vect-11.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* { dg-do run { target vect_cmdline_needed } } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=3 -fwrapv -fdump-tree-vect-stats" } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=3 -fwrapv -fdump-tree-vect-stats -mno-sse" { target { i?86-*-* x86_64-*-* } } } */
++/* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=3 -fwrapv -fdump-tree-vect-stats -mno-sse -mfpmath=387" { target { *-*-android* } } } */
+ 
+ #include <stdlib.h>
+ 
+Index: gcc/testsuite/gcc.dg/tree-ssa/gen-vect-11a.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/gen-vect-11a.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/gen-vect-11a.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* { dg-do run { target vect_cmdline_needed } } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=3 -fdump-tree-vect-stats" } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=3 -fdump-tree-vect-stats -mno-sse" { target { i?86-*-* x86_64-*-* } } } */
++/* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=3 -fdump-tree-vect-stats -mno-sse -mfpmath=387" { target { *-*-android* } } } */
+ 
+ #include <stdlib.h>
+ 
+Index: gcc/testsuite/gcc.dg/tree-ssa/gen-vect-11b.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/gen-vect-11b.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/gen-vect-11b.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* { dg-do run { target vect_cmdline_needed } } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=3 -fdump-tree-vect-stats" } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=3 -fdump-tree-vect-stats -mno-sse" { target { i?86-*-* x86_64-*-* } } } */
++/* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=3 -fdump-tree-vect-stats -mno-sse -mfpmath=387" { target { *-*-android* } } } */
+ 
+ #include <stdlib.h>
+ 
+Index: gcc/testsuite/gcc.dg/tree-ssa/gen-vect-11c.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/gen-vect-11c.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/gen-vect-11c.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* { dg-do run { target vect_cmdline_needed } } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=3 -fdump-tree-vect-stats" } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=3 -fdump-tree-vect-stats -mno-sse" { target { i?86-*-* x86_64-*-* } } } */
++/* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=3 -fdump-tree-vect-stats -mno-sse -mfpmath=387" { target { *-*-android* } } } */
+ 
+ #include <stdlib.h>
+ 
+Index: gcc/testsuite/gcc.dg/tree-ssa/gen-vect-2.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/gen-vect-2.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/gen-vect-2.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* { dg-do run { target vect_cmdline_needed } } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats" } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats -mno-sse" { target { i?86-*-* x86_64-*-* } } } */
++/* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats -mno-sse -mfpmath=387" { target { *-*-android* } } } */
+ 
+ #include <stdlib.h>
+ 
+Index: gcc/testsuite/gcc.dg/tree-ssa/gen-vect-25.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/gen-vect-25.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/gen-vect-25.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* { dg-do run { target vect_cmdline_needed } } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats" } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats -mno-sse" { target { i?86-*-* x86_64-*-* } } } */
++/* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats -mno-sse -mfpmath=387" { target { *-*-android* } } } */
+ 
+ #include <stdlib.h>
+ 
+Index: gcc/testsuite/gcc.dg/tree-ssa/gen-vect-26.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/gen-vect-26.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/gen-vect-26.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* { dg-do run { target vect_cmdline_needed } } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats" } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats -mno-sse" { target { i?86-*-* x86_64-*-* } } } */
++/* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats -mno-sse -mfpmath=387" { target { *-*-android* } } } */
+ 
+ #include <stdlib.h>
+ 
+Index: gcc/testsuite/gcc.dg/tree-ssa/gen-vect-28.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/gen-vect-28.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/gen-vect-28.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* { dg-do run { target vect_cmdline_needed } } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats" } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats -mno-sse" { target { i?86-*-* x86_64-*-* } } } */
++/* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats -mno-sse -mfpmath=387" { target { *-*-android* } } } */
+ 
+ #include <stdlib.h>
+ 
+Index: gcc/testsuite/gcc.dg/tree-ssa/gen-vect-32.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/gen-vect-32.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/gen-vect-32.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* { dg-do run { target vect_cmdline_needed } } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats" } */
+ /* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats -mno-sse" { target { i?86-*-* x86_64-*-* } } } */
++/* { dg-options "-O2 -ftree-vectorize -ftree-vectorizer-verbose=4 -fdump-tree-vect-stats -mno-sse -mfpmath=387" { target { *-*-android* } } } */
+ 
+ #include <stdlib.h>
+ 
+Index: gcc/testsuite/gcc.dg/tree-ssa/ipa-split-5.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/ipa-split-5.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/ipa-split-5.c	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do compile } */
++/* { dg-do compile { target nonpic } } */
+ /* { dg-options "-O3 -fdump-tree-fnsplit -fdump-tree-optimized" } */
+ 
+ struct a {int a,b;};
+Index: gcc/testsuite/gcc.dg/tree-ssa/loadpre6.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/loadpre6.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/loadpre6.c	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do compile } */ 
++/* { dg-do compile { target nonpic } } */
+ /* { dg-options "-O2 -fdump-tree-pre-stats -fdump-tree-fre" } */
+ #include <stddef.h>
+ 
+Index: gcc/testsuite/gcc.dg/tree-ssa/loop-25.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/loop-25.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/loop-25.c	(working copy)
+@@ -1,5 +1,5 @@
+ /* { dg-do compile } */
+-/* { dg-options "-O1 -fdump-tree-profile" } */
++/* { dg-options "-O1 -fdump-tree-profile_estimate" } */
+ 
+ int foo(void);
+ void bla(void);
+@@ -118,12 +118,12 @@
+     }
+ }
+ 
+-/* { dg-final { scan-tree-dump-times "Disambiguating loop" 5 "profile" } } */
++/* { dg-final { scan-tree-dump-times "Disambiguating loop" 5 "profile_estimate" } } */
+ /* For the following xfail marks, see PR35629.  */
+-/* { dg-final { scan-tree-dump-times "Found latch edge" 5 "profile" { xfail *-*-* } } } */
+-/* { dg-final { scan-tree-dump-times "Merged latch edges" 2 "profile" { xfail *-*-* } } } */
+-/* { dg-final { scan-tree-dump-times "4 loops found" 2 "profile" { xfail *-*-* } } } */
+-/* { dg-final { scan-tree-dump-times "3 loops found" 2 "profile" { xfail *-*-* } } } */
+-/* { dg-final { scan-tree-dump-times "2 loops found" 1 "profile" { xfail *-*-* } } } */
++/* { dg-final { scan-tree-dump-times "Found latch edge" 5 "profile_estimate" { xfail *-*-* } } } */
++/* { dg-final { scan-tree-dump-times "Merged latch edges" 2 "profile_estimate" { xfail *-*-* } } } */
++/* { dg-final { scan-tree-dump-times "4 loops found" 2 "profile_estimate" { xfail *-*-* } } } */
++/* { dg-final { scan-tree-dump-times "3 loops found" 2 "profile_estimate" { xfail *-*-* } } } */
++/* { dg-final { scan-tree-dump-times "2 loops found" 1 "profile_estimate" { xfail *-*-* } } } */
+ 
+-/* { dg-final { cleanup-tree-dump "profile" } } */
++/* { dg-final { cleanup-tree-dump "profile_estimate" } } */
+Index: gcc/testsuite/gcc.dg/tree-ssa/loop-34.c
+===================================================================
+--- gcc/testsuite/gcc.dg/tree-ssa/loop-34.c	(revision 201681)
++++ gcc/testsuite/gcc.dg/tree-ssa/loop-34.c	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do compile } */
++/* { dg-do compile { target nonpic } } */
+ /* { dg-options "-O2 -fdump-tree-lim-details" } */
+ 
+ int r[6];
+Index: gcc/testsuite/gcc.misc-tests/bprob.exp
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/bprob.exp	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/bprob.exp	(working copy)
+@@ -51,6 +52,12 @@
+ set feedback_options "-fprofile-use"
+ 
+ foreach profile_option $profile_options feedback_option $feedback_options {
++    global bridge_mode
++    if { [ info exists bridge_mode ] } {
++	set profile_option "-fprofile-arcs "
++    } else {
++	set profile_option $profile_options
++    }
+     foreach src [lsort [glob -nocomplain $srcdir/$subdir/bprob-*.c]] {
+         # If we're only testing specific files and this isn't one of them, skip it.
+         if ![runtest_file_p $runtests $src] then {
+Index: gcc/testsuite/gcc.misc-tests/gcov-1.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov-1.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/gcov-1.c	(working copy)
+@@ -1,7 +1,8 @@
+ /* Test Gcov basics.  */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ void noop ()
+ {
+Index: gcc/testsuite/gcc.misc-tests/gcov-10.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov-10.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/gcov-10.c	(working copy)
+@@ -1,7 +1,8 @@
+ /* Test gcov block mode.  */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ int main ()
+ {
+Index: gcc/testsuite/gcc.misc-tests/gcov-10b.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov-10b.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/gcov-10b.c	(working copy)
+@@ -1,7 +1,8 @@
+ /* Test gcov block mode.  */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage" } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ int main ()
+ {
+Index: gcc/testsuite/gcc.misc-tests/gcov-11.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov-11.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/gcov-11.c	(working copy)
+@@ -1,7 +1,8 @@
+ /* Test gcov block mode.  */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ int one = 1; /* subvert constant folder. */
+ int zero = 0;
+Index: gcc/testsuite/gcc.misc-tests/gcov-2.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov-2.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/gcov-2.c	(working copy)
+@@ -1,7 +1,8 @@
+ /* Test Gcov basics.  */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage -g" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ void noop ()
+ {
+Index: gcc/testsuite/gcc.misc-tests/gcov-3.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov-3.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/gcov-3.c	(working copy)
+@@ -1,8 +1,9 @@
+ /* Test Gcov with computed gotos.
+    This is the same as test gcc.c-torture/execute/980526-1.c */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ extern void abort (void);
+ extern void exit (int);
+Index: gcc/testsuite/gcc.misc-tests/gcov-4.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov-4.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/gcov-4.c	(working copy)
+@@ -1,9 +1,9 @@
+ /* Check that execution counts for various C constructs are reported
+    correctly by gcov. */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
+-
+ extern void abort (void);
+ 
+ int do_something (int i)
+Index: gcc/testsuite/gcc.misc-tests/gcov-4b.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov-4b.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/gcov-4b.c	(working copy)
+@@ -1,9 +1,9 @@
+ /* Check that execution counts for various C constructs are reported
+    correctly by gcov. */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
+-
+ extern void abort (void);
+ 
+ int do_something (int i)
+Index: gcc/testsuite/gcc.misc-tests/gcov-5b.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov-5b.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/gcov-5b.c	(working copy)
+@@ -1,8 +1,9 @@
+ /* Check that branch percentages are calculated in variables
+    that are large enough to hold the count. */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ #define LIMIT1 7000
+ #define LIMIT2 7000
+Index: gcc/testsuite/gcc.misc-tests/gcov-6.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov-6.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/gcov-6.c	(working copy)
+@@ -3,8 +3,9 @@
+    meant to be simple, as it was added at the same time that checking
+    for call return percentages was added.  */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ extern void exit (int);
+ 
+Index: gcc/testsuite/gcc.misc-tests/gcov-7.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov-7.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/gcov-7.c	(working copy)
+@@ -1,8 +1,9 @@
+ /* Check that gcov correctly reports line counts, branch percentages,
+  * and call return percentages for functions that call longjmp. */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ #include <setjmp.h>
+ 
+Index: gcc/testsuite/gcc.misc-tests/gcov-8.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov-8.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/gcov-8.c	(working copy)
+@@ -5,8 +5,9 @@
+    Contributed by Nathan Sidwell <nathan@codesourcery.com>
+ */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ int proxy (int i)
+ {
+Index: gcc/testsuite/gcc.misc-tests/gcov-9.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov-9.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/gcov-9.c	(working copy)
+@@ -1,7 +1,8 @@
+ /* Test gcov block mode.  */
+ 
+-/* { dg-options "-fprofile-arcs -ftest-coverage" } */
+-/* { dg-do run { target native } } */
++/* { dg-options "-fprofile-arcs -ftest-coverage"  } */
++/* { dg-options "-fprofile-arcs -ftest-coverage "  } */
++/* { dg-do run { target { native *-*-android* } } } */
+ 
+ int main ()
+ {
+Index: gcc/testsuite/gcc.misc-tests/i386-pf-3dnow-1.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/i386-pf-3dnow-1.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/i386-pf-3dnow-1.c	(working copy)
+@@ -3,6 +3,7 @@
+ 
+ /* { dg-do compile { target i?86-*-* x86_64-*-*} } */
+ /* { dg-require-effective-target ilp32 } */
++/* { dg-skip-if "" { i?86-*-android*  } { "*" } { "" } } */
+ 
+ extern void exit (int);
+ 
+Index: gcc/testsuite/gcc.misc-tests/i386-pf-none-1.c
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/i386-pf-none-1.c	(revision 201681)
++++ gcc/testsuite/gcc.misc-tests/i386-pf-none-1.c	(working copy)
+@@ -3,6 +3,7 @@
+ 
+ /* { dg-do compile { target i?86-*-* x86_64-*-* } } */
+ /* { dg-require-effective-target ilp32 } */
++/* { dg-skip-if "" { i?86-*-android*  } { "*" } { "" } } */
+ 
+ extern void exit (int);
+ 
+Index: gcc/testsuite/gcc.target/i386/20030217-1.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/20030217-1.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/20030217-1.c	(working copy)
+@@ -2,6 +2,7 @@
+    are parsed correctly.  */
+ /* { dg-do run } */
+ /* { dg-options "-std=c99" } */
++/* { dg-require-effective-target large_long_double } */
+ 
+ long double d = 0x0.0000003ffffffff00000p-16357L;
+ long double e = 0x0.0000003ffffffff00000p-16356L;
+Index: gcc/testsuite/gcc.target/i386/387-3.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/387-3.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/387-3.c	(working copy)
+@@ -2,6 +2,7 @@
+ /* { dg-do compile } */
+ /* { dg-options "-O2 -mfpmath=387 -mfancy-math-387" } */
+ /* { dg-final { scan-assembler "fldpi" } } */
++/* { dg-require-effective-target large_long_double } */
+ 
+ long double add_pi(long double x)
+ {
+Index: gcc/testsuite/gcc.target/i386/387-4.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/387-4.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/387-4.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* { dg-do compile } */
+ /* { dg-options "-O2 -mfancy-math-387" } */
+ /* { dg-final { scan-assembler "fldpi" } } */
++/* { dg-require-effective-target large_long_double } */
+ 
+ long double atanl (long double);
+ 
+Index: gcc/testsuite/gcc.target/i386/avx256-unaligned-load-3.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/avx256-unaligned-load-3.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/avx256-unaligned-load-3.c	(working copy)
+@@ -1,5 +1,5 @@
+ /* { dg-do compile } */
+-/* { dg-options "-O3 -dp -mavx -mavx256-split-unaligned-load" } */
++/* { dg-options "-O3 -dp -mavx -mavx256-split-unaligned-load -mtune=generic" } */
+ 
+ #define N 1024
+ 
+@@ -14,6 +14,6 @@
+     c[i] = a[i] * b[i+3];
+ }
+ 
+-/* { dg-final { scan-assembler-not "\\*avx_movupd256/1" } } */
+-/* { dg-final { scan-assembler "\\*avx_movupd/1" } } */
++/* { dg-final { scan-assembler-not "avx_movupd256/1" } } */
++/* { dg-final { scan-assembler "sse2_movupd/1" { target { ! { *-*-android* } } } } } */
+ /* { dg-final { scan-assembler "vinsertf128" } } */
+Index: gcc/testsuite/gcc.target/i386/avx256-unaligned-store-3.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/avx256-unaligned-store-3.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/avx256-unaligned-store-3.c	(working copy)
+@@ -1,5 +1,5 @@
+ /* { dg-do compile } */
+-/* { dg-options "-O3 -dp -mavx -mavx256-split-unaligned-store" } */
++/* { dg-options "-O3 -dp -mavx -mavx256-split-unaligned-store -mtune=generic" } */
+ 
+ #define N 1024
+ 
+@@ -17,6 +17,6 @@
+     d[i] = c[i] * 20.0;
+ }
+ 
+-/* { dg-final { scan-assembler-not "\\*avx_movupd256/2" } } */
+-/* { dg-final { scan-assembler "movupd.*\\*avx_movv2df_internal/3" } } */
++/* { dg-final { scan-assembler-not "avx_movupd256/2" } } */
++/* { dg-final { scan-assembler "vmovupd.*\\*movv2df_internal/3" { target { ! { *-*-android* } } } } } */
+ /* { dg-final { scan-assembler "vextractf128" } } */
+Index: gcc/testsuite/gcc.target/i386/defines-1.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/defines-1.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/defines-1.c	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do compile } */
+-/* { dg-options "-march=nocona -mno-sse" } */
++/* { dg-options "-march=nocona -mno-sse" { target { ! *-*-android* } } } */
++/* { dg-options "-march=nocona -mno-sse -mfpmath=387" { target { *-*-android* } } } */
+ 
+ #if defined(__SSE__) || defined(__SSE2__) || defined(__SSE3__)
+ #error
+Index: gcc/testsuite/gcc.target/i386/excess-precision-1.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/excess-precision-1.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/excess-precision-1.c	(working copy)
+@@ -38,12 +38,22 @@
+     abort ();
+   if (f1 + f2 < fadd1)
+     abort ();
+-  if (d1 + d2 + d3 == dadd2)
+-    abort ();
+-  if (!(d1 + d2 + d3 > dadd2))
+-    abort ();
+-  if (!(d1 + d2 + d3 >= dadd2))
+-    abort ();
++  if (sizeof(long double) > sizeof(double)) {
++    if ( d1 + d2 + d3 == dadd2)
++      abort ();
++    if (!(d1 + d2 + d3 > dadd2))
++      abort ();
++    if (!(d1 + d2 + d3 >= dadd2))
++      abort ();
++  }
++  else {
++    if ( d1 + d2 + d3 != dadd2 )
++      abort();
++    if ( d1 + d2 + d3 < dadd2 )
++      abort();
++    if ( d1 + d2 + d3 > dadd2 )
++      abort();
++  }
+ }
+ 
+ volatile long double ldsub1 = 1.0l - 0x1.0p-30l;
+@@ -90,10 +100,18 @@
+     abort ();
+   if ((0, dbl_min * dbl_min * dbl_min) != dbl_min3)
+     abort ();
+-  if (dbl_min * dbl_min * dbl_min == 0)
+-    abort ();
+-  if ((flt_min * flt_min ? dbl_min * dbl_min * dbl_min : 0) == 0)
+-    abort ();
++  if (sizeof(long double) > sizeof(double) ) {
++    if (dbl_min * dbl_min * dbl_min == 0)
++      abort ();
++    if ((flt_min * flt_min ? dbl_min * dbl_min * dbl_min : 0) == 0)
++      abort (); 
++  }
++  else {
++    if (dbl_min * dbl_min * dbl_min != 0)
++      abort ();
++    if ((flt_min * flt_min ? dbl_min * dbl_min * dbl_min : 1) != 0)
++      abort ();
++  }
+   if ((flt_min * flt_min ? : 0) == 0)
+     abort ();
+ }
+Index: gcc/testsuite/gcc.target/i386/excess-precision-3.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/excess-precision-3.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/excess-precision-3.c	(working copy)
+@@ -15,6 +15,7 @@
+ volatile double d1 = 1.0;
+ volatile double d2 = 0x1.0p-30;
+ volatile double d3 = 0x1.0p-60;
++volatile double d3d = 0x1.0p-52;
+ volatile float fadd1 = 1.0f + 0x1.0p-30f;
+ volatile double dadd2 = 1.0 + 0x1.0p-30 + 0x1.0p-60;
+ volatile double dh = 0x1.0p-24;
+@@ -35,9 +36,15 @@
+   if (d != dadd2)
+     abort ();
+   /* Verify rounding direct to float without double rounding.  */
+-  f = d1 + dh + d3;
+-  if (f != fha)
+-    abort ();
++  if (sizeof(long double) > sizeof(double)  )  {
++    f = d1 + dh + d3;
++    if (f != fha)
++      abort ();
++  } else {
++      f = d1 + dh + d3d;
++      if (f != fha)
++        abort ();
++  }
+ }
+ 
+ void
+@@ -193,16 +200,28 @@
+     abort ();
+   if (!__builtin_islessgreater (flt_min * flt_min, 0.0f))
+     abort ();
+-  if (!__builtin_isgreater (dbl_min * dbl_min, 0.0))
+-    abort ();
+   if (!__builtin_isgreaterequal (dbl_min * dbl_min, 0.0))
+     abort ();
+-  if (!__builtin_isless (0.0, dbl_min * dbl_min))
+-    abort ();
+-  if (__builtin_islessequal (dbl_min * dbl_min, 0.0))
+-    abort ();
+-  if (!__builtin_islessgreater (dbl_min * dbl_min, 0.0))
+-    abort ();
++  if (sizeof(long double) > sizeof(double)  ) {
++    if (!__builtin_isgreater (dbl_min * dbl_min, 0.0))
++      abort ();
++    if (!__builtin_isless (0.0, dbl_min * dbl_min))
++      abort ();
++    if (__builtin_islessequal (dbl_min * dbl_min, 0.0))
++      abort ();
++    if (!__builtin_islessgreater (dbl_min * dbl_min, 0.0))
++      abort ();
++  }
++  else {
++    if (__builtin_isgreater (dbl_min * dbl_min, 0.0))
++      abort ();
++    if (__builtin_isless (0.0, dbl_min * dbl_min))
++      abort ();
++    if (!__builtin_islessequal (dbl_min * dbl_min, 0.0))
++      abort ();
++    if (__builtin_islessgreater (dbl_min * dbl_min, 0.0))
++      abort ();
++  }
+ }
+ 
+ int
+Index: gcc/testsuite/gcc.target/i386/funcspec-5.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/funcspec-5.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/funcspec-5.c	(working copy)
+@@ -2,6 +2,8 @@
+    without error.  */
+ /* { dg-do compile } */
+ /* { dg-require-effective-target ilp32 } */
++/* { dg-options "" { target { ! *-*-android* } } } */
++/* { dg-options "-mfpmath=387" { target { *-*-android* } } } */
+ 
+ extern void test_abm (void)			__attribute__((__target__("abm")));
+ extern void test_aes (void)			__attribute__((__target__("aes")));
+Index: gcc/testsuite/gcc.target/i386/isa-14.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/isa-14.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/isa-14.c	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do run } */
+-/* { dg-options "-march=x86-64 -msse4a -mfma4 -mno-sse" } */
++/* { dg-options "-march=x86-64 -msse4a -mfma4 -mno-sse" { target { ! *-*-android* } } } */
++/* { dg-options "-march=x86-64 -msse4a -mfma4 -mno-sse -mfpmath=387" { target { *-*-android* } } } */
+ 
+ extern void abort (void);
+ 
+Index: gcc/testsuite/gcc.target/i386/mmx-1.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/mmx-1.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/mmx-1.c	(working copy)
+@@ -1,4 +1,4 @@
+-/* { dg-do compile } */
++/* { dg-do compile { target nonpic } } */
+ /* { dg-options "-O2 -Werror-implicit-function-declaration -mmmx" } */
+ 
+ /* Test that the intrinsics compile with optimization.  All of them are
+Index: gcc/testsuite/gcc.target/i386/pentium4-not-mull.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/pentium4-not-mull.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/pentium4-not-mull.c	(working copy)
+@@ -1,6 +1,6 @@
+ /* { dg-do compile } */
+ /* { dg-require-effective-target ilp32 } */
+-/* { dg-skip-if "" { i?86-*-* x86_64-*-* } { "-march=*" } { "-march=pentium4" } } */
++/* { dg-skip-if "" { i?86-*-* x86_64-*-* } { "*" } { "-march=pentium4" } } */
+ /* { dg-options "-O2 -march=pentium4" } */
+ /* { dg-final { scan-assembler-not "imull" } } */
+ 
+Index: gcc/testsuite/gcc.target/i386/pr36578-1.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/pr36578-1.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/pr36578-1.c	(working copy)
+@@ -2,6 +2,7 @@
+ /* { dg-do run } */
+ /* { dg-options "-msse2 -mfpmath=sse" } */
+ /* { dg-require-effective-target sse2 } */
++/* { dg-require-effective-target large_long_double } */
+ 
+ #include "sse2-check.h"
+ 
+Index: gcc/testsuite/gcc.target/i386/pr36578-2.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/pr36578-2.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/pr36578-2.c	(working copy)
+@@ -11,14 +11,19 @@
+ 
+ volatile double d1 = 0x1.000001p0;
+ volatile double d2 = 0x1p-54;
++volatile double d2d = 0x1p-52;
+ volatile float f = 0x1.000002p0f;
+ volatile float f2;
+ 
+ static void
+ sse2_test (void)
+ {
+-  f2 = (float)((long double)d1 + (long double)d2);
+-  if (f != f2)
++  if (sizeof(long double) > sizeof(double)  ) {
++	f2 = (float)((long double)d1 + (long double)d2);
++  } else {
++	f2 = (float)((long double)d1 + (long double)d2d);
++  }
++  if (f != f2) 
+     abort ();
+   exit (0);
+ }
+Index: gcc/testsuite/gcc.target/i386/pr44948-2a.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/pr44948-2a.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/pr44948-2a.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* PR target/44948 */
+ /* { dg-do run } */
+-/* { dg-options "-O -Wno-psabi -mno-sse -mtune=generic" } */
++/* { dg-options "-O -Wno-psabi -mno-sse -mtune=generic" { target { ! *-*-android* } } } */
++/* { dg-options "-O -Wno-psabi -mno-sse -mtune=generic -mfpmath=387" { target { *-*-android* } } } */
+ /* { dg-require-effective-target ilp32 } */
+ /* { dg-require-effective-target sse2_runtime } */
+ /* { dg-additional-sources pr44948-2b.c } */
+Index: gcc/testsuite/gcc.target/i386/pr44948-2b.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/pr44948-2b.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/pr44948-2b.c	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do compile } */
+-/* { dg-options "-O -mno-sse -Wno-psabi -mtune=generic" } */
++/* { dg-options "-O -mno-sse -Wno-psabi -mtune=generic" { target { ! *-*-android* } } } */
++/* { dg-options "-O -mno-sse -Wno-psabi -mtune=generic -mfpmath=387" { target { *-*-android* } } } */
+ 
+ struct A
+ { 
+Index: gcc/testsuite/gcc.target/i386/pr47312.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/pr47312.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/pr47312.c	(working copy)
+@@ -1,5 +1,5 @@
+ /* PR target/47312 */
+-/* { dg-do link } */
++/* { dg-do link { target { ! *-*-android* } } } */
+ /* { dg-require-effective-target lto } */
+ /* { dg-require-effective-target xop } */
+ /* { dg-require-effective-target c99_runtime } */
+Index: gcc/testsuite/gcc.target/i386/sse-5.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/sse-5.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/sse-5.c	(working copy)
+@@ -1,6 +1,6 @@
+ /* { dg-do compile } */
+ /* { dg-require-effective-target ilp32 } */
+-/* { dg-skip-if "" { i?86-*-* x86_64-*-* } { "-march=*" } { "-march=i386" } } */
++/* { dg-skip-if "" { i?86-*-* x86_64-*-* } { "*" } { "-march=i386" } } */
+ /* { dg-options "-Winline -Wno-psabi -O2 -march=i386" } */
+ 
+ typedef double v2df __attribute__ ((vector_size (16)));
+Index: gcc/testsuite/gcc.target/i386/ssefn-1.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/ssefn-1.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/ssefn-1.c	(working copy)
+@@ -7,7 +7,7 @@
+ /* { dg-final { scan-assembler "mulss" } } */
+ /* { dg-final { scan-assembler-not "movsd" } } */
+ /* { dg-final { scan-assembler-not "mulsd" } } */
+-/* { dg-skip-if "" { i?86-*-* x86_64-*-* } { "-march=*" } { "-march=i386" } } */
++/* { dg-skip-if "" { i?86-*-* x86_64-*-* } { "*" } { "-march=i386" } } */
+ /* { dg-options "-O2 -march=i386 -msse -mfpmath=sse -fno-inline" } */
+ 
+ static float xs (void)
+Index: gcc/testsuite/gcc.target/i386/sseregparm-2.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/sseregparm-2.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/sseregparm-2.c	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do compile } */
+-/* { dg-options "-mno-sse" } */
++/* { dg-options "-mno-sse" { target { ! *-*-android* } } } */
++/* { dg-options "-mno-sse -mfpmath=387" { target { *-*-android* } } } */
+ /* { dg-require-effective-target ilp32 } */
+ 
+ float essef(float) __attribute__((sseregparm));
+Index: gcc/testsuite/gcc.target/i386/sseregparm-8.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/sseregparm-8.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/sseregparm-8.c	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do compile } */
+-/* { dg-options "-mno-sse" } */
++/* { dg-options "-mno-sse" { target { ! *-*-android* } } } */
++/* { dg-options "-mno-sse -mfpmath=387" { target { *-*-android* } } } */
+ /* { dg-require-effective-target ilp32 } */
+ 
+ float essef(float) __attribute__((sseregparm));
+Index: gcc/testsuite/gcc.target/i386/vect-double-1.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/vect-double-1.c	(revision 201681)
++++ gcc/testsuite/gcc.target/i386/vect-double-1.c	(working copy)
+@@ -1,5 +1,6 @@
+ /* { dg-do compile } */
+ /* { dg-options "-O2 -ftree-vectorize -mfpmath=sse -march=core2 -fdump-tree-vect-stats" } */
++/* { dg-skip-if "" { i?86-*-android* } { "*" } { "" } } */
+ 
+ extern void abort (void);
+ 
+Index: gcc/testsuite/lib/target-supports-dg.exp
+===================================================================
+--- gcc/testsuite/lib/target-supports-dg.exp	(revision 201681)
++++ gcc/testsuite/lib/target-supports-dg.exp	(working copy)
+@@ -148,7 +148,9 @@
+ }
+ 
+ proc dg-require-iconv { args } {
+-    if { ![ check_iconv_available ${args} ] } {
++    global target_triplet
++    if { [string match "*-*-android*" $target_triplet]
++         || ![ check_iconv_available ${args} ] } {
+ 	upvar dg-do-what dg-do-what
+         set dg-do-what [list [lindex ${dg-do-what} 0] "N" "P"]
+     }
+Index: gcc/testsuite/lib/target-supports.exp
+===================================================================
+--- gcc/testsuite/lib/target-supports.exp	(revision 201681)
++++ gcc/testsuite/lib/target-supports.exp	(working copy)
+@@ -508,6 +508,13 @@
+ 	return 0
+     }
+ 
++    # Android does not support profiler.
++    if { [istarget *-*-android*]
++	 && ([lindex $test_what 1] == "-p"
++	     || [lindex $test_what 1] == "-pg") } {
++	return 0
++    }
++
+     # Now examine the cache variable.
+     if {![info exists profiling_available_saved]} {
+ 	# Some targets don't have any implementation of __bb_init_func or are
+Index: gcc/testsuite/gcc.c-torture/execute/pr33992.x
+===================================================================
+--- gcc/testsuite/gcc.c-torture/execute/pr33992.x       (revision 0)
++++ gcc/testsuite/gcc.c-torture/execute/pr33992.x       (working copy)
+@@ -0,0 +1,7 @@
++load_lib target-supports.exp
++
++if { [check_effective_target_nonpic] } {
++        return 0
++}
++
++return 1
+Index: gcc/testsuite/gcc.target/i386/20030217-2.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/20030217-2.c  (revision 0)
++++ gcc/testsuite/gcc.target/i386/20030217-2.c  (working copy)
+@@ -0,0 +1,23 @@
++/* Test whether denormal floating point constants in hexadecimal notation
++   are parsed correctly.  */
++/* { dg-do run } */
++/* { dg-options "-std=c99" } */
++
++long double d;
++long double e;
++
++long double f = 2.2250738585072014E-308L;
++
++extern void abort (void);
++extern void exit (int);
++
++int
++main (void)
++{
++   d = 0x0.0000003ffffffff00000p-1048L;
++   e = 0x0.0000003ffffffff00000p-1047L;
++  if (d != e / 2.0)
++    abort ();
++
++  exit (0);
++}
+Index: gcc/testsuite/gcc.c-torture/compile/limits-exprparen.c
+===================================================================
+--- gcc/testsuite/gcc.c-torture/compile/limits-exprparen.c	(revision 201733)
++++ gcc/testsuite/gcc.c-torture/compile/limits-exprparen.c	(working copy)
+@@ -1,3 +1,7 @@
++/* Switch off the test locally because of http://gcc.gnu.org/PR31827 */
++/* to get clarity of testing, see related issue #2113 */
++/* { dg-skip-if "" { *-*-android* } }*/
++
+ #define LBR1 ( ( ( ( ( ( ( ( ( (
+ #define LBR2 LBR1 LBR1 LBR1 LBR1 LBR1 LBR1 LBR1 LBR1 LBR1 LBR1
+ #define LBR3 LBR2 LBR2 LBR2 LBR2 LBR2 LBR2 LBR2 LBR2 LBR2 LBR2
+Index: gcc/testsuite/g++.dg/template/constant2.C
+===================================================================
+--- gcc/testsuite/g++.dg/template/constant2.C	(revision 201915)
++++ gcc/testsuite/g++.dg/template/constant2.C	(working copy)
+@@ -1,3 +1,6 @@
++/* Set XFAIL to get clarity of testing on Android #1637 */
++/* { dg-excess-errors { xfail "" { *-*-android* } } }* /
++
+ // PR c++/49896
+ 
+ template<class C>
+Index: gcc/testsuite/gcc.c-torture/execute/20030125-1.x
+===================================================================
+--- gcc/testsuite/gcc.c-torture/execute/20030125-1.x	(revision 202020)
++++ gcc/testsuite/gcc.c-torture/execute/20030125-1.x	(working copy)
+@@ -1,4 +1,6 @@
+ # Only glibc includes all c99 functions at the moment.
+ if { ! [istarget "*-linux*"] } { return 1 }
+ if { [check_effective_target_uclibc] } { return 1 }
++# This problems were fixed within trunk, see #1577
++if { [istarget "*-*-android*"] } { return 1 }
+ return 0
+Index: gcc/testsuite/gcc.dg/builtins-20.c
+===================================================================
+--- gcc/testsuite/gcc.dg/builtins-20.c	(revision 202020)
++++ gcc/testsuite/gcc.dg/builtins-20.c	(working copy)
+@@ -5,7 +5,8 @@
+ 
+    Written by Roger Sayle, 8th June 2003.  */
+ 
+-/* { dg-do link } */
++/* This problems fixed in trunk, see #1577 */
++/* { dg-do link { target { ! { *-*-android* } } } } */
+ /* { dg-options "-O2 -ffast-math" } */
+ /* { dg-add-options c99_runtime } */
+ 
+Index: gcc/testsuite/gcc.dg/builtins-57.c
+===================================================================
+--- gcc/testsuite/gcc.dg/builtins-57.c	(revision 202020)
++++ gcc/testsuite/gcc.dg/builtins-57.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-do link } */
++/* This problem was fixed in trunk, see #1577 */
++/* { dg-do link { target { ! { *-*-android* } } } } */
+ /* { dg-options "-std=c99 -ffinite-math-only" } */
+ 
+ #include "builtins-config.h"
+Index: gcc/testsuite/gcc.dg/builtins-58.c
+===================================================================
+--- gcc/testsuite/gcc.dg/builtins-58.c	(revision 202020)
++++ gcc/testsuite/gcc.dg/builtins-58.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-do compile } */
++/* This problem was fixed in trunk, see #1577 */
++/* { dg-do compile { target { ! { *-*-android* } } } } */
+ /* { dg-options "-O -ffast-math -std=c99 -fno-ident" } */
+ 
+ #include "builtins-config.h"
+Index: gcc/testsuite/gcc.dg/builtins-62.c
+===================================================================
+--- gcc/testsuite/gcc.dg/builtins-62.c	(revision 202020)
++++ gcc/testsuite/gcc.dg/builtins-62.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-do compile } */
++/* This test was fixed in trunk, see #1577 */
++/* { dg-do compile { target { ! { *-*-android* } } } } */
+ /* { dg-options "-O -ffinite-math-only -fdump-tree-optimized" } */
+ /* { dg-require-effective-target c99_runtime } */
+ 
+Index: gcc/testsuite/gcc.dg/builtins-59.c
+===================================================================
+--- gcc/testsuite/gcc.dg/builtins-59.c	(revision 202240)
++++ gcc/testsuite/gcc.dg/builtins-59.c	(working copy)
+@@ -9,6 +9,7 @@
+   return s + c;
+ }
+ 
+-/* { dg-final { scan-tree-dump "__builtin_cexpi" "gimple" } } */
+-/* { dg-final { scan-tree-dump-not "sincos" "gimple" } } */
++/* Temporary switched off to get clarity of testing see #1557 */
++/* { dg-final { scan-tree-dump "__builtin_cexpi" "gimple" { target { ! { *-*-android* } } } } } */
++/* { dg-final { scan-tree-dump-not "sincos" "gimple" { target { ! { *-*-android* } } } } } */
+ /* { dg-final { cleanup-tree-dump "gimple" } } */
+Index: gcc/testsuite/gcc.dg/builtins-61.c
+===================================================================
+--- gcc/testsuite/gcc.dg/builtins-61.c	(revision 202240)
++++ gcc/testsuite/gcc.dg/builtins-61.c	(working copy)
+@@ -25,8 +25,9 @@
+   return x - __real c;
+ }
+ 
+-/* { dg-final { scan-tree-dump "cexpi" "optimized" } } */
+-/* { dg-final { scan-tree-dump "sin" "optimized" } } */
+-/* { dg-final { scan-tree-dump "cos" "optimized" } } */
+-/* { dg-final { scan-tree-dump "return 0.0" "optimized" } } */
++/* Temporary switched off to get clarity of testing see #1557 */
++/* { dg-final { scan-tree-dump "cexpi" "optimized" { target { ! { *-*-android* } } } } } */
++/* { dg-final { scan-tree-dump "sin" "optimized" { target { ! { *-*-android* } } } } } */
++/* { dg-final { scan-tree-dump "cos" "optimized" { target { ! { *-*-android* } } } } } */
++/* { dg-final { scan-tree-dump "return 0.0" "optimized" { target { ! { *-*-android* } } } } } */
+ /* { dg-final { cleanup-tree-dump "optimized" } } */
+Index: gcc/testsuite/gcc.dg/builtins-65.c
+===================================================================
+--- gcc/testsuite/gcc.dg/builtins-65.c	(revision 202240)
++++ gcc/testsuite/gcc.dg/builtins-65.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-do link } */
++/* Switched off to get clarity of testing, because fixed in trunk, see #1577 */
++/* { dg-do link { target { ! { *-*-android* } } } } */
+ /* { dg-options "-O2 -ffast-math" } */
+ /* { dg-require-effective-target c99_runtime } */
+ 
+Index: gcc/testsuite/gcc.target/i386/funcspec-1.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/funcspec-1.c	(revision 202240)
++++ gcc/testsuite/gcc.target/i386/funcspec-1.c	(working copy)
+@@ -6,7 +6,8 @@
+ /* { dg-skip-if "" { i?86-*-* x86_64-*-* } { "-march=*" } { "-march=i386" } } */
+ /* { dg-options "-O3 -ftree-vectorize -march=i386" } */
+ /* { dg-final { scan-assembler "addps\[ \t\]" } } */
+-/* { dg-final { scan-assembler "fsubs\[ \t\]" } } */
++/* Temporary switched off to get clarity of testing see #2110 */
++/* { dg-final { scan-assembler "fsubs\[ \t\]" { target { ! { *-*-android* } } } } } */
+ 
+ #ifndef SIZE
+ #define SIZE 1024
+Index: gcc/testsuite/gcc.target/i386/pad-10.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/pad-10.c	(revision 202240)
++++ gcc/testsuite/gcc.target/i386/pad-10.c	(working copy)
+@@ -1,6 +1,7 @@
+ /* { dg-do compile } */
+ /* { dg-options "-O2 -fomit-frame-pointer -march=atom" } */
+-/* { dg-final { scan-assembler-not "nop" } } */
++/* Temporary switched off (in trunk too) to get clarity of testing see #2110 */
++/* { dg-final { scan-assembler-not "nop" { target { ! { *-*-android* } } } } } */
+ /* { dg-final { scan-assembler-not "rep" } } */
+ 
+ extern void bar ();
+Index: gcc/testsuite/gcc.target/i386/sse-13.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/sse-13.c	(revision 202240)
++++ gcc/testsuite/gcc.target/i386/sse-13.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-do compile } */
++/* Temporary switched off to get clarity of testing see #2110 */
++/* { dg-do compile { target nonpic } } */
+ /* { dg-options "-O2 -Werror-implicit-function-declaration -march=k8 -msse4a -m3dnow -mavx -mfma4 -mxop -maes -mpclmul -mpopcnt -mabm -mbmi -mtbm -mlwp -mfsgsbase -mrdrnd -mf16c" } */
+ 
+ #include <mm_malloc.h>
+Index: gcc/testsuite/gcc.target/i386/sse-23.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/sse-23.c	(revision 202240)
++++ gcc/testsuite/gcc.target/i386/sse-23.c	(working copy)
+@@ -1,4 +1,5 @@
+-/* { dg-do compile } */
++/* Temporary switched off to get clarity of testing see #2110 */
++/* { dg-do compile { target nonpic } } */
+ /* { dg-options "-O2 -Werror-implicit-function-declaration -march=k8" } */
+ 
+ #include <mm_malloc.h>
+Index: gcc/testsuite/gcc.target/i386/sse-24.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/sse-24.c	(revision 202240)
++++ gcc/testsuite/gcc.target/i386/sse-24.c	(working copy)
+@@ -1,5 +1,6 @@
+ /* PR target/44338 */
+-/* { dg-do compile } */
++/* Temporary switched off to get clarity of testing see #2110 */
++/* { dg-do compile { target nonpic } } */
+ /* { dg-options "-O2 -Werror-implicit-function-declaration -march=k8 -ffp-contract=off" } */
+ 
+ #include "sse-23.c"
+Index: gcc/testsuite/gcc.dg/vect/O3-vect-pr34223.c
+===================================================================
+--- gcc/testsuite/gcc.dg/vect/O3-vect-pr34223.c	(revision 202489)
++++ gcc/testsuite/gcc.dg/vect/O3-vect-pr34223.c	(working copy)
+@@ -29,5 +29,6 @@
+   return 0;
+ }
+ 
+-/* { dg-final { scan-tree-dump-times "vectorized 1 loops" 1 "vect" { target vect_int_mult } } } */
++// Test disabled because target should be nonpic #1499
++/* { dg-final { scan-tree-dump-times "vectorized 1 loops" 1 "vect" { target { vect_int_mult && nonpic } } } } */
+ /* { dg-final { cleanup-tree-dump "vect" } } */

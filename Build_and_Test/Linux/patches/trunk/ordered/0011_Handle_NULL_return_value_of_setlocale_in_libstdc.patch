@@ -1,0 +1,119 @@
+diff --git a/gcc-4.9/libstdc++-v3/config/locale/generic/c_locale.cc b/gcc-4.9/libstdc++-v3/config/locale/generic/c_locale.cc
+index 0d309a5..b4dcea9 100644
+--- a/gcc-4.9/libstdc++-v3/config/locale/generic/c_locale.cc
++++ b/gcc-4.9/libstdc++-v3/config/locale/generic/c_locale.cc
+@@ -51,10 +51,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+     {
+       // Assumes __s formatted for "C" locale.
+       char* __old = setlocale(LC_ALL, 0);
+-      const size_t __len = strlen(__old) + 1;
+-      char* __sav = new char[__len];
+-      memcpy(__sav, __old, __len);
+-      setlocale(LC_ALL, "C");
++      char* __sav = 0;
++      if (__old)
++        {
++          const size_t __len = strlen(__old) + 1;
++          __sav = new char[__len];
++          memcpy(__sav, __old, __len);
++          setlocale(LC_ALL, "C");
++        }
+       char* __sanity;
+       bool __overflow = false;
+ 
+@@ -116,10 +120,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+     {
+       // Assumes __s formatted for "C" locale.
+       char* __old = setlocale(LC_ALL, 0);
+-      const size_t __len = strlen(__old) + 1;
+-      char* __sav = new char[__len];
+-      memcpy(__sav, __old, __len);
+-      setlocale(LC_ALL, "C");
++      char* __sav = 0;
++      if (__old)
++        {
++          const size_t __len = strlen(__old) + 1;
++          __sav = new char[__len];
++          memcpy(__sav, __old, __len);
++          setlocale(LC_ALL, "C");
++        }
+       char* __sanity;
+ 
+ #if !__DBL_HAS_INFINITY__
+@@ -161,10 +169,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+     {
+       // Assumes __s formatted for "C" locale.
+       char* __old = setlocale(LC_ALL, 0);
+-      const size_t __len = strlen(__old) + 1;
+-      char* __sav = new char[__len];
+-      memcpy(__sav, __old, __len);
+-      setlocale(LC_ALL, "C");
++      char* __sav = 0;
++      if (__old)
++        {
++          const size_t __len = strlen(__old) + 1;
++          __sav = new char[__len];
++          memcpy(__sav, __old, __len);
++          setlocale(LC_ALL, "C");
++        }
+ 
+ #if !__LDBL_HAS_INFINITY__
+       errno = 0;
+diff --git a/gcc-4.9/libstdc++-v3/config/locale/generic/c_locale.h b/gcc-4.9/libstdc++-v3/config/locale/generic/c_locale.h
+index b5fd989..08f59e4 100644
+--- a/gcc-4.9/libstdc++-v3/config/locale/generic/c_locale.h
++++ b/gcc-4.9/libstdc++-v3/config/locale/generic/c_locale.h
+@@ -59,7 +59,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+   {
+     char* __old = std::setlocale(LC_NUMERIC, 0);
+     char* __sav = 0;
+-    if (__builtin_strcmp(__old, "C"))
++    if (__old && __builtin_strcmp(__old, "C"))
+       {
+ 	const size_t __len = __builtin_strlen(__old) + 1;
+ 	__sav = new char[__len];
+diff --git a/gcc-4.9/libstdc++-v3/config/locale/generic/time_members.cc b/gcc-4.9/libstdc++-v3/config/locale/generic/time_members.cc
+index 056e4fd..4e32cab 100644
+--- a/gcc-4.9/libstdc++-v3/config/locale/generic/time_members.cc
++++ b/gcc-4.9/libstdc++-v3/config/locale/generic/time_members.cc
+@@ -44,10 +44,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+ 	   const tm* __tm) const throw()
+     {
+       char* __old = setlocale(LC_ALL, 0);
+-      const size_t __llen = strlen(__old) + 1;
+-      char* __sav = new char[__llen];
+-      memcpy(__sav, __old, __llen);
+-      setlocale(LC_ALL, _M_name_timepunct);
++      char* __sav = 0;
++      if (__old)
++        {
++          const size_t __llen = strlen(__old) + 1;
++          __sav = new char[__llen];
++          memcpy(__sav, __old, __llen);
++          setlocale(LC_ALL, _M_name_timepunct);
++        }
+       const size_t __len = strftime(__s, __maxlen, __format, __tm);
+       setlocale(LC_ALL, __sav);
+       delete [] __sav;
+@@ -129,10 +133,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+ 	   const tm* __tm) const throw()
+     {
+       char* __old = setlocale(LC_ALL, 0);
+-      const size_t __llen = strlen(__old) + 1;
+-      char* __sav = new char[__llen];
+-      memcpy(__sav, __old, __llen);
+-      setlocale(LC_ALL, _M_name_timepunct);
++      char* __sav = 0;
++      if (__old)
++        {
++          const size_t __llen = strlen(__old) + 1;
++          __sav = new char[__llen];
++          memcpy(__sav, __old, __llen);
++          setlocale(LC_ALL, _M_name_timepunct);
++        }
+       const size_t __len = wcsftime(__s, __maxlen, __format, __tm);
+       setlocale(LC_ALL, __sav);
+       delete [] __sav;
+-- 
+1.8.1.4
+

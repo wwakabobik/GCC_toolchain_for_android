@@ -1,0 +1,137 @@
+diff --git a/gcc-4.9/libatomic/configure b/gcc-4.9/libatomic/configure
+index a9dfa03..19bf2f9 100755
+--- a/gcc-4.9/libatomic/configure
++++ b/gcc-4.9/libatomic/configure
+@@ -14403,7 +14403,23 @@ _ACEOF
+ if ac_fn_c_try_link "$LINENO"; then :
+   XPCFLAGS=" -pthread"
+ else
+-  CFLAGS="$save_CFLAGS $XCFLAGS" LIBS="-lpthread $LIBS"
++  CFLAGS="$save_CFLAGS $XCFLAGS"
++     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++#include <pthread.h>
++        void *g(void *d) { return NULL; }
++int
++main ()
++{
++pthread_t t; pthread_create(&t,NULL,g,NULL);
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++
++else
++  LIBS="-lpthread $LIBS"
+      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ #include <pthread.h>
+@@ -14426,6 +14442,9 @@ rm -f core conftest.err conftest.$ac_objext \
+ fi
+ rm -f core conftest.err conftest.$ac_objext \
+     conftest$ac_exeext conftest.$ac_ext
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
+   CFLAGS="$save_CFLAGS $XPCFLAGS"
+   ;;
+ esac
+diff --git a/gcc-4.9/libatomic/configure.ac b/gcc-4.9/libatomic/configure.ac
+index 0dc4a98..ebf4e0b 100644
+--- a/gcc-4.9/libatomic/configure.ac
++++ b/gcc-4.9/libatomic/configure.ac
+@@ -199,14 +199,21 @@ case " $config_path " in
+       void *g(void *d) { return NULL; }],
+      [pthread_t t; pthread_create(&t,NULL,g,NULL);])],
+     [XPCFLAGS=" -pthread"],
+-    [CFLAGS="$save_CFLAGS $XCFLAGS" LIBS="-lpthread $LIBS"
++    [CFLAGS="$save_CFLAGS $XCFLAGS"
+      AC_LINK_IFELSE(
+       [AC_LANG_PROGRAM(
+        [#include <pthread.h>
+         void *g(void *d) { return NULL; }],
+        [pthread_t t; pthread_create(&t,NULL,g,NULL);])],
+       [],
+-      [AC_MSG_ERROR([Pthreads are required to build libatomic])])])
++     [LIBS="-lpthread $LIBS"
++     AC_LINK_IFELSE(
++      [AC_LANG_PROGRAM(
++       [#include <pthread.h>
++        void *g(void *d) { return NULL; }],
++       [pthread_t t; pthread_create(&t,NULL,g,NULL);])],
++      [],
++      [AC_MSG_ERROR([Pthreads are required to build libatomic])])])])
+   CFLAGS="$save_CFLAGS $XPCFLAGS"
+   ;;
+ esac
+diff --git a/gcc-4.9/libgomp/configure b/gcc-4.9/libgomp/configure
+index 238b1af..d5d9895 100755
+--- a/gcc-4.9/libgomp/configure
++++ b/gcc-4.9/libgomp/configure
+@@ -15022,7 +15022,23 @@ _ACEOF
+ if ac_fn_c_try_link "$LINENO"; then :
+   XPCFLAGS=" -Wc,-pthread"
+ else
+-  CFLAGS="$save_CFLAGS" LIBS="-lpthread $LIBS"
++  CFLAGS="$save_CFLAGS"
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++#include <pthread.h>
++     void *g(void *d) { return NULL; }
++int
++main ()
++{
++pthread_t t; pthread_create(&t,NULL,g,NULL);
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++
++else
++  LIBS="-lpthread $LIBS"
+   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ #include <pthread.h>
+@@ -15045,6 +15061,9 @@ rm -f core conftest.err conftest.$ac_objext \
+ fi
+ rm -f core conftest.err conftest.$ac_objext \
+     conftest$ac_exeext conftest.$ac_ext
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
+ 
+ # Check for functions needed.
+ for ac_func in getloadavg clock_gettime strtoull
+diff --git a/gcc-4.9/libgomp/configure.ac b/gcc-4.9/libgomp/configure.ac
+index d87ed29..1832a0d 100644
+--- a/gcc-4.9/libgomp/configure.ac
++++ b/gcc-4.9/libgomp/configure.ac
+@@ -184,14 +184,21 @@ AC_LINK_IFELSE(
+    void *g(void *d) { return NULL; }],
+   [pthread_t t; pthread_create(&t,NULL,g,NULL);])],
+  [XPCFLAGS=" -Wc,-pthread"],
+- [CFLAGS="$save_CFLAGS" LIBS="-lpthread $LIBS"
++  [CFLAGS="$save_CFLAGS"
+   AC_LINK_IFELSE(
+    [AC_LANG_PROGRAM(
+     [#include <pthread.h>
+      void *g(void *d) { return NULL; }],
+     [pthread_t t; pthread_create(&t,NULL,g,NULL);])],
+    [],
+-   [AC_MSG_ERROR([Pthreads are required to build libgomp])])])
++  [LIBS="-lpthread $LIBS"
++  AC_LINK_IFELSE(
++   [AC_LANG_PROGRAM(
++    [#include <pthread.h>
++     void *g(void *d) { return NULL; }],
++    [pthread_t t; pthread_create(&t,NULL,g,NULL);])],
++   [],
++   [AC_MSG_ERROR([Pthreads are required to build libgomp])])])])
+ 
+ # Check for functions needed.
+ AC_CHECK_FUNCS(getloadavg clock_gettime strtoull)
+-- 
+1.7.11.4
+

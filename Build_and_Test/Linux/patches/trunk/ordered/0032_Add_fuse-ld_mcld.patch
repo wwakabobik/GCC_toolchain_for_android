@@ -1,0 +1,22 @@
+diff --git a/gcc-4.9/gcc/common.opt b/gcc-4.9/gcc/common.opt
+index bdbd3b6..2b051da 100644
+--- a/gcc-4.9/gcc/common.opt
++++ b/gcc-4.9/gcc/common.opt
+@@ -2221,9 +2221,13 @@ Common Negative(fuse-ld=gold)
+ Use the bfd linker instead of the default linker
+ 
+ fuse-ld=gold
+-Common Negative(fuse-ld=bfd)
++Common Negative(fuse-ld=mcld)
+ Use the gold linker instead of the default linker
+ 
++fuse-ld=mcld
++Common Negative(fuse-ld=bfd)
++Use the mcld linker instead of the default linker
++
+ fuse-linker-plugin
+ Common Undocumented
+ 
+-- 
+1.8.1.4
+

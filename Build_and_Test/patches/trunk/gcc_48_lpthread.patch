@@ -1,0 +1,59 @@
+diff --git a/gcc-4.8/gcc/config/arm/linux-eabi.h b/gcc-4.8/gcc/config/arm/linux-eabi.h
+index 4a425c8..0a30062 100644
+--- a/gcc-4.8/gcc/config/arm/linux-eabi.h
++++ b/gcc-4.8/gcc/config/arm/linux-eabi.h
+@@ -95,7 +95,7 @@
+ #undef  LIB_SPEC
+ #define LIB_SPEC							\
+   LINUX_OR_ANDROID_LD (GNU_USER_TARGET_LIB_SPEC,			\
+-		       GNU_USER_TARGET_LIB_SPEC " " ANDROID_LIB_SPEC)
++		       GNU_USER_TARGET_LIB_SPEC_LESS_PTHREAD " " ANDROID_LIB_SPEC)
+ 
+ #undef	STARTFILE_SPEC
+ #define STARTFILE_SPEC \
+diff --git a/gcc-4.8/gcc/config/gnu-user.h b/gcc-4.8/gcc/config/gnu-user.h
+index 43f0ee0..e2758af 100644
+--- a/gcc-4.8/gcc/config/gnu-user.h
++++ b/gcc-4.8/gcc/config/gnu-user.h
+@@ -73,10 +73,12 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+ #undef CPLUSPLUS_CPP_SPEC
+ #define CPLUSPLUS_CPP_SPEC "-D_GNU_SOURCE %(cpp)"
+ 
+-#define GNU_USER_TARGET_LIB_SPEC \
+-  "%{pthread:-lpthread} \
+-   %{shared:-lc} \
++#define GNU_USER_TARGET_LIB_SPEC_LESS_PTHREAD \
++   "%{shared:-lc} \
+    %{!shared:%{mieee-fp:-lieee} %{profile:-lc_p}%{!profile:-lc}}"
++#define GNU_USER_TARGET_LIB_SPEC \
++  "%{pthread:-lpthread} "\
++  GNU_USER_TARGET_LIB_SPEC_LESS_PTHREAD
+ #undef  LIB_SPEC
+ #define LIB_SPEC GNU_USER_TARGET_LIB_SPEC
+ 
+diff --git a/gcc-4.8/gcc/config/i386/linux-common.h b/gcc-4.8/gcc/config/i386/linux-common.h
+index 1e8bf6b..3d0f19d 100644
+--- a/gcc-4.8/gcc/config/i386/linux-common.h
++++ b/gcc-4.8/gcc/config/i386/linux-common.h
+@@ -40,7 +40,7 @@ along with GCC; see the file COPYING3.  If not see
+ #undef  LIB_SPEC
+ #define LIB_SPEC \
+   LINUX_OR_ANDROID_LD (GNU_USER_TARGET_LIB_SPEC, \
+-		       GNU_USER_TARGET_LIB_SPEC " " ANDROID_LIB_SPEC)
++		       GNU_USER_TARGET_LIB_SPEC_LESS_PTHREAD " " ANDROID_LIB_SPEC)
+ 
+ #undef  STARTFILE_SPEC
+ #define STARTFILE_SPEC \
+diff --git a/gcc-4.8/gcc/config/mips/linux-common.h b/gcc-4.8/gcc/config/mips/linux-common.h
+index ca4ea07..760f5e9 100644
+--- a/gcc-4.8/gcc/config/mips/linux-common.h
++++ b/gcc-4.8/gcc/config/mips/linux-common.h
+@@ -44,7 +44,7 @@ along with GCC; see the file COPYING3.  If not see
+ #undef  LIB_SPEC
+ #define LIB_SPEC							\
+   LINUX_OR_ANDROID_LD (GNU_USER_TARGET_LIB_SPEC,			\
+-		       GNU_USER_TARGET_LIB_SPEC " " ANDROID_LIB_SPEC)
++		       GNU_USER_TARGET_LIB_SPEC_LESS_PTHREAD " " ANDROID_LIB_SPEC)
+ 
+ #undef  STARTFILE_SPEC
+ #define STARTFILE_SPEC							\

@@ -1,0 +1,32 @@
+diff --git a/gcc-4.9/gcc/config/mips/mips.h b/gcc-4.9/gcc/config/mips/mips.h
+index 52e1d46..8aec027 100644
+--- a/gcc-4.9/gcc/config/mips/mips.h
++++ b/gcc-4.9/gcc/config/mips/mips.h
+@@ -870,7 +870,8 @@ struct mips_cpu_info {
+ /* ISA has LDC1 and SDC1.  */
+ #define ISA_HAS_LDC1_SDC1	(!ISA_MIPS1				\
+ 				 && !TARGET_MIPS5900			\
+-				 && !TARGET_MIPS16)
++				 && !TARGET_MIPS16			\
++				 &&  TARGET_LDC1_SDC1)
+ 
+ /* ISA has the mips4 FP condition code instructions: FP-compare to CC,
+    branch on CC, and move (both FP and non-FP) on CC.  */
+diff --git a/gcc-4.9/gcc/config/mips/mips.opt b/gcc-4.9/gcc/config/mips/mips.opt
+index d8ef2e7..b9655a5 100644
+--- a/gcc-4.9/gcc/config/mips/mips.opt
++++ b/gcc-4.9/gcc/config/mips/mips.opt
+@@ -263,6 +263,10 @@ mips3d
+ Target Report RejectNegative Mask(MIPS3D)
+ Use MIPS-3D instructions
+ 
++mldc1-sdc1
++Target Report Var(TARGET_LDC1_SDC1) Init(1)
++Use ldc1 and sdc1 instruction
++
+ mllsc
+ Target Report Mask(LLSC)
+ Use ll, sc and sync instructions
+-- 
+1.8.1.4
+

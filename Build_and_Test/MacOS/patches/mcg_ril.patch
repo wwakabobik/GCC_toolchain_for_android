@@ -1,0 +1,16 @@
+project hardware/ril/
+diff --git a/rild/Android.mk b/rild/Android.mk
+index a94da12..3bae5ad 100644
+--- a/rild/Android.mk
++++ b/rild/Android.mk
+@@ -11,9 +11,7 @@ LOCAL_SHARED_LIBRARIES := \
+ 	libcutils \
+ 	libril
+ 
+-ifeq ($(TARGET_ARCH),arm)
+ LOCAL_SHARED_LIBRARIES += libdl
+-endif # arm
+ 
+ LOCAL_CFLAGS := -DRIL_SHLIB
+ 
+

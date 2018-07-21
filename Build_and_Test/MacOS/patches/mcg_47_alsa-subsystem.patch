@@ -1,0 +1,13 @@
+diff --git a/alsa-subsystem/AlsaCtlSubsystemTemplate.h b/alsa-subsystem/AlsaCtlSubsystemTemplate.h
+index 616b2a6..8b1f188 100644
+--- a/alsa-subsystem/AlsaCtlSubsystemTemplate.h
++++ b/alsa-subsystem/AlsaCtlSubsystemTemplate.h
+@@ -41,7 +41,7 @@ public:
+         this->addContextMappingKey("Device");
+ 
+         // Provide creators to upper layer
+-        addSubsystemObjectFactory(new TSubsystemObjectFactory<AlsaCtlPortConfigType>("PortConfig",
++        this->addSubsystemObjectFactory(new TSubsystemObjectFactory<AlsaCtlPortConfigType>("PortConfig",
+                                       (1 << EAMixerCard)  | (1 << EAlsaCtlDevice)));
+     }
+ };

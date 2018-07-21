@@ -1,0 +1,93 @@
+diff --git a/external/bluetooth/bluedroid/gki/Android.mk b/external/bluetooth/bluedroid/gki/Android.mk
+index 7e60255..28e571b 100644
+--- a/external/bluetooth/bluedroid/gki/Android.mk
++++ b/external/bluetooth/bluedroid/gki/Android.mk
+@@ -11,7 +11,7 @@ LOCAL_C_INCLUDES:= $(LOCAL_PATH)/common \
+                    $(LOCAL_PATH)/../utils/include \
+                    $(bdroid_C_INCLUDES) \
+ 
+-LOCAL_CFLAGS += -Werror $(bdroid_CFLAGS)
++LOCAL_CFLAGS += $(bdroid_CFLAGS)
+ 
+ LOCAL_PRELINK_MODULE:=false
+ LOCAL_SRC_FILES:= \
+diff --git a/external/bluetooth/bluedroid/main/Android.mk b/external/bluetooth/bluedroid/main/Android.mk
+index 8ecb3c3..8e20bc4 100644
+--- a/external/bluetooth/bluedroid/main/Android.mk
++++ b/external/bluetooth/bluedroid/main/Android.mk
+@@ -92,7 +92,7 @@ LOCAL_C_INCLUDES+= . \
+ 	$(bdroid_C_INCLUDES) \
+ 	external/tinyxml2
+ 
+-LOCAL_CFLAGS += -DBUILDCFG $(bdroid_CFLAGS) -Werror -Wno-error=maybe-uninitialized -Wno-error=uninitialized
++LOCAL_CFLAGS += -DBUILDCFG $(bdroid_CFLAGS) -Wno-error=maybe-uninitialized -Wno-error=uninitialized
+ 
+ ifeq ($(TARGET_PRODUCT), full_crespo)
+      LOCAL_CFLAGS += -DTARGET_CRESPO
+
+diff --git a/external/linux-tools-perf/Android.mk b/external/linux-tools-perf/Android.mk
+index 84d24f7..e9d4f5e 100644
+--- a/external/linux-tools-perf/Android.mk
++++ b/external/linux-tools-perf/Android.mk
+@@ -148,7 +148,7 @@ LOCAL_CFLAGS += -include $(LOCAL_PATH)/util/include/linux/compiler.h
+ # for various GNU extensions
+ LOCAL_CFLAGS += -include external/elfutils/bionic-fixup/AndroidFixup.h
+ 
+-LOCAL_CFLAGS += -Wno-attributes -Werror
++LOCAL_CFLAGS += -Wno-attributes 
+ 
+ LOCAL_C_INCLUDES := external/elfutils external/elfutils/libelf external/elfutils/libdw external/elfutils/libdwfl
+ 
+@@ -265,7 +265,7 @@ LOCAL_CFLAGS += -DPERF_MAN_PATH='""'
+ LOCAL_CFLAGS += -DPERF_INFO_PATH='""'
+ LOCAL_CFLAGS += -DPERF_VERSION='"perf.3.0.8_android"'
+ 
+-LOCAL_CFLAGS += -Wno-attributes -Werror
++LOCAL_CFLAGS += -Wno-attributes 
+ 
+ include $(BUILD_EXECUTABLE)
+ 
+
+diff --git a/system/core/libcorkscrew/Android.mk b/system/core/libcorkscrew/Android.mk
+index 2786d8f..2e2cea6 100644
+--- a/system/core/libcorkscrew/Android.mk
++++ b/system/core/libcorkscrew/Android.mk
+@@ -51,7 +51,7 @@ endif
+
+ LOCAL_SHARED_LIBRARIES += libdl libcutils libgccdemangle
+
+-LOCAL_CFLAGS += -std=gnu99 -Werror
++LOCAL_CFLAGS += -std=gnu99
+ LOCAL_MODULE := libcorkscrew
+ LOCAL_MODULE_TAGS := optional
+
+@@ -60,7 +60,7 @@ include $(BUILD_SHARED_LIBRARY)
+ # Build test.
+ include $(CLEAR_VARS)
+ LOCAL_SRC_FILES := test.cpp
+-LOCAL_CFLAGS += -Werror -fno-inline-small-functions
++LOCAL_CFLAGS += -fno-inline-small-functions
+ LOCAL_SHARED_LIBRARIES := libcorkscrew
+ LOCAL_MODULE := libcorkscrew_test
+ LOCAL_MODULE_TAGS := optional
+@@ -81,7 +81,7 @@ ifeq ($(HOST_OS),linux)
+   LOCAL_SHARED_LIBRARIES += libgccdemangle # TODO: is this even needed on Linux?
+   LOCAL_LDLIBS += -lrt
+ endif
+-LOCAL_CFLAGS += -std=gnu99 -Werror
++LOCAL_CFLAGS += -std=gnu99
+ LOCAL_MODULE := libcorkscrew
+ LOCAL_MODULE_TAGS := optional
+ include $(BUILD_HOST_SHARED_LIBRARY)
+@@ -89,7 +89,7 @@ include $(BUILD_HOST_SHARED_LIBRARY)
+ # Build test.
+ include $(CLEAR_VARS)
+ LOCAL_SRC_FILES := test.cpp
+-LOCAL_CFLAGS += -Werror
++LOCAL_CFLAGS +=
+ LOCAL_SHARED_LIBRARIES := libcorkscrew
+ LOCAL_MODULE := libcorkscrew_test
+ LOCAL_MODULE_TAGS := optional
+ LOCAL_MODULE := libcorkscrew_test
+ LOCAL_MODULE_TAGS := optional
+

@@ -1,0 +1,84 @@
+diff --git a/build/tools/dev-rebuild-ndk.sh b/build/tools/dev-rebuild-ndk.sh
+index 4f6b424..99443c0 100755
+--- a/build/tools/dev-rebuild-ndk.sh
++++ b/build/tools/dev-rebuild-ndk.sh
+@@ -44,6 +44,23 @@ register_var_option "--quick" OPTION_QUICK_BUILD "Only build the Linux basics"
+ OPTION_TOOLCHAINS="$DEFAULT_ARCH_TOOLCHAIN_NAME_arm,$DEFAULT_ARCH_TOOLCHAIN_NAME_x86,$DEFAULT_ARCH_TOOLCHAIN_NAME_mips"
+ register_var_option "--toolchains=<toolchain[,toolchain]>" OPTION_TOOLCHAINS "Toolchain(s) to package"
+ 
++OPTION_TRY_64=
++register_try64_option
++
++OPTION_ALSO_64=
++register_option "--also-64" do_ALSO_64 "Also build 64-bit host toolchain"
++do_ALSO_64 () { OPTION_ALSO_64=" --also-64"; }
++
++OPTION_SEPARATE_64=
++register_option "--separate-64" do_SEPARATE_64 "Separate 64-bit host toolchain to its own package"
++do_SEPARATE_64 ()
++{
++    if [ "$TRY64" = "yes" ]; then
++        echo "ERROR: You cannot use both --try-64 and --separate-64 at the same time."
++        exit 1
++    fi
++    OPTION_SEPARATE_64=" --separate-64";
++}
+ # # Name of the Mac OS Build host
+ # MAC_BUILD_HOST="macdroid"
+ # register_var_option "--mac-host=<name>" MAC_BUILD_HOST "Hostname of the Mac OS X system"
+@@ -54,6 +71,10 @@ PROGRAM_DESCRIPTION=\
+ 
+ extract_parameters "$@"
+ 
++if [ "$TRY64" = "yes" ]; then
++    OPTION_TRY_64=" --try-64"
++fi
++
+ TOP=$PWD
+ TODAY=`date '+%Y%m%d'`
+ PACKAGE_DIR=$TOP/ndk-release-$TODAY
+@@ -204,6 +225,8 @@ do
+         $MPFR_VERSION $GDB_VERSION $BINUTILS_VERSION \
+         $TARGET_PLATFORM_FLAGS \
+         $VERBOSE \
++        $OPTION_TRY_64 \
++        $OPTION_ALSO_64 \
+         $NDK_SRC_DIR >> $logfile 2>&1
+     fail_panic "rebuild-all-prebuilt.sh failed. Logfile in $logfile"
+ done # with TARGET_PLATFORM
+@@ -221,6 +244,8 @@ $PROGDIR/package-release.sh \
+     --out-dir=$PACKAGE_DIR \
+     --arch=$(spaces_to_commas $ARCHS)  \
+     --prefix=android-ndk-${OPTION_NDK_RELEASE} \
++    $OPTION_TRY_64 \
++    $OPTION_SEPARATE_64 \
+     --no-git \
+     $VERBOSE > $logfile 2>&1
+ fail_panic "package-release.sh failed. Logfile in $logfile"
+diff --git a/build/tools/package-release.sh b/build/tools/package-release.sh
+index 2d12825..63f8a22 100755
+--- a/build/tools/package-release.sh
++++ b/build/tools/package-release.sh
+@@ -204,22 +204,6 @@ if [ -n "$PREBUILT_DIR" ] ; then
+         echo "ERROR: Your systems list is empty, use --systems=LIST to specify a different one."
+         exit 1
+     fi
+-    # Check the toolchain prebuilts
+-    #
+-    for TC in $TOOLCHAINS; do
+-        for SYS in $SYSTEMS; do
+-            if [ ! -f "$PREBUILT_DIR/$TC-$SYS.tar.bz2" ] ; then
+-                echo "ERROR: Missing prebuilt file $TC-$SYS.tar.bz2 in: $PREBUILT_DIR"
+-                exit 1
+-            fi
+-        done
+-    done
+-    for ARCH in $ARCHS; do
+-        if [ ! -f "$PREBUILT_DIR/$ARCH-gdbserver.tar.bz2" ] ; then
+-            echo "ERROR: Missing prebuilt file $ARCH-gdbserver.tar.bz2 in: $PREBUILT_DIR"
+-            exit 1
+-        fi
+-    done
+ else
+     if [ ! -f "$PREBUILT_NDK" ] ; then
+         echo "ERROR: the --prebuilt-ndk argument is not a file: $PREBUILT_NDK"

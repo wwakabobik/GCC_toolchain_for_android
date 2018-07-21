@@ -1,0 +1,20 @@
+diff --git a/build/tools/package-release.sh b/build/tools/package-release.sh
+index c6d1218..ab7d744 100755
+--- a/build/tools/package-release.sh
++++ b/build/tools/package-release.sh
+@@ -366,15 +366,6 @@ rm -rf $REFERENCE/samples/*/{obj,libs,build.xml,local.properties,Android.mk} &&
+ rm -rf $REFERENCE/tests/build/*/{obj,libs} &&
+ rm -rf $REFERENCE/tests/device/*/{obj,libs}
+ 
+-if [ "$WITH_LIBCXX" ]; then
+-    # Remove the libc++ test suite, it's large (28 MiB) and not useful for
+-    # developers using the NDK.
+-    rm -rf $REFERENCE/sources/cxx-stl/llvm-libc++/libcxx/test
+-else
+-    # Remove the libc++ sources, they're not ready for release.
+-    # http://b.android.com/36496
+-    rm -rf $REFERENCE/sources/cxx-stl/llvm-libc++
+-fi
+ 
+ # Regenerate HTML documentation, place the files under .../docs/
+ $NDK_ROOT_DIR/build/tools/build-docs.sh \

@@ -1,0 +1,24 @@
+diff --git a/build/tools/dev-rebuild-ndk.sh b/build/tools/dev-rebuild-ndk.sh
+index 4f6b424..ade52ee 100755
+--- a/build/tools/dev-rebuild-ndk.sh
++++ b/build/tools/dev-rebuild-ndk.sh
+@@ -65,7 +65,7 @@ linux )
+     if [ "$OPTION_QUICK_BUILD" = "yes" ]; then
+        BUILD_TARGET_PLATFORMS="linux-x86"
+     else
+-       BUILD_TARGET_PLATFORMS="linux-x86 windows"
++       BUILD_TARGET_PLATFORMS="linux-x86"
+     fi
+     ;;
+ darwin )
+@@ -114,7 +114,9 @@ fi
+ 
+ echo
+ echo "Checking for Toolchain sources"
+-NDK_SRC_DIR=/tmp/ndk-$USER/src/android-ndk-src-${TOOLCHAIN_GIT_DATE}${PATCHES_SHA1}
++#NDK_SRC_DIR=/tmp/ndk-$USER/src/android-ndk-src-${TOOLCHAIN_GIT_DATE}${PATCHES_SHA1}
++NDK_SRC_DIR=$baseDir/repositories/toolchain_synced
++
+ if [ ! -d $NDK_SRC_DIR ]
+ then
+     echo "  Downloading Toolchain sources"

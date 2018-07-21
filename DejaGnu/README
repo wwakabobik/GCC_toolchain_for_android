@@ -1,0 +1,30 @@
+    Installing DejaGnu
+
+1. Clone DejaGnu with: git clone git://git.sv.gnu.org/dejagnu.git
+2. Apply patch with: cd dejagnu && git apply --whitespace=nowarn dejagnu.patch
+3. Create destination folders: mkdir ../lib && mkdir ../install && mkdir ../share && mkdir ../bin
+4. ./configure --prefix=/gnucwmnt/msticlxl101_users/igveresx/DejaGnu/install --bindir=/gnucwmnt/msticlxl101_users/igveresx/DejaGnu/bin --sbindir=/gnucwmnt/msticlxl101_users/igveresx/DejaGnu/bin --libexecdir=/gnucwmnt/msticlxl101_users/igveresx/DejaGnu/bin --libdir=/gnucwmnt/msticlxl101_users/igveresx/DejaGnu/lib --datadir=/gnucwmnt/msticlxl101_users/igveresx/DejaGnu/share
+(replace with yours folders)
+5. Install patched and configured DejaGnu: make && make install
+6. modify test_installed_adb_bridge.patch with yours patches
+7. Run Make_Check_Android.sh as usual MC script.
+
+To automate installation of DejaGnu run following script in some folder where you want to place dejagnu:
+    ./install_dejagnu.sh
+or specify placeholder folder as param.
+
+    Generating new patch
+
+1. Update and add necessary files to dejagnu sources
+2. Make sure, that you have any and all files under git version control, add\remove needed files
+3. Make sure, that all new files described in Makefiles (am and in).
+4. Generate new patch by: git diff >dejagnu.patch && git diff --cached >>dejagnu.patch
+
+To automate generation of DejaGnu patch run following script in some folder where you have dejagnu sources folder
+    ./prepare_patches.sh SOURCE_FOLDER DEST_FOLDER
+Both of params are optional.
+SOURCE_FOLDER - temporary folder, where new files for dejagnu was stored (bridge.exp, remote.exp, dejagnu_sources.patch, etc.).
+By default it is pwd. DEST_FOLDER - it's a palceholder folder, which contains dejagnu sources folder. By default it is pwd/DejaGnu.
+To update dejagnu.patch (which will be regenerated in pwd) just copy modified files into SOURCE_FOLDER. And run the script.
+Do not remain any old files within SOURCE_FOLDER, if you already have new version of files, placed within dejagnu_sources.patch!
+Any sourcefile within SOURCE_FOLDER will be used in priority instead of patch file!

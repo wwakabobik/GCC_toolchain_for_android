@@ -1,0 +1,30 @@
+diff --git a/gcc-4.9/libstdc++-v3/include/ext/atomicity.h b/gcc-4.9/libstdc++-v3/include/ext/atomicity.h
+index 6367026..13003ba 100644
+--- a/gcc-4.9/libstdc++-v3/include/ext/atomicity.h
++++ b/gcc-4.9/libstdc++-v3/include/ext/atomicity.h
+@@ -43,7 +43,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+   // To abstract locking primitives across all thread policies, use:
+   // __exchange_and_add_dispatch
+   // __atomic_add_dispatch
+-#ifdef _GLIBCXX_ATOMIC_BUILTINS
++#if defined(_GLIBCXX_ATOMIC_BUILTINS) && (!defined(__clang__) || defined(__i386__))
++  // NOTE: clang arm/mips can't compile the following two library calls yet.
+   static inline _Atomic_word 
+   __exchange_and_add(volatile _Atomic_word* __mem, int __val)
+   { return __atomic_fetch_add(__mem, __val, __ATOMIC_ACQ_REL); }
+diff --git a/gcc-4.9/libstdc++-v3/include/std/type_traits b/gcc-4.9/libstdc++-v3/include/std/type_traits
+index 97f8baf..b5f8c79 100644
+--- a/gcc-4.9/libstdc++-v3/include/std/type_traits
++++ b/gcc-4.9/libstdc++-v3/include/std/type_traits
+@@ -259,7 +259,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+     struct __is_floating_point_helper<long double>
+     : public true_type { };
+ 
+-#if !defined(__STRICT_ANSI__) && defined(_GLIBCXX_USE_FLOAT128)
++#if !defined(__STRICT_ANSI__) && defined(_GLIBCXX_USE_FLOAT128) && !defined(__clang__)
+   template<>
+     struct __is_floating_point_helper<__float128>
+     : public true_type { };
+-- 
+1.8.1.4
+

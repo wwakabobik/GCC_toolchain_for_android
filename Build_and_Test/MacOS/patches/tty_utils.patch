@@ -1,0 +1,12 @@
+diff --git a/lib/tty_utils/Android.mk b/lib/tty_utils/Android.mk
+index 87cfb98..46bbff4 100644
+--- a/lib/tty_utils/Android.mk
++++ b/lib/tty_utils/Android.mk
+@@ -8,6 +8,7 @@ SUPPORT_UNITTESTS := 1
+ endif
+ LOCAL_SRC_FILES := \
+     tty_utils.c
++LOCAL_SHARED_LIBRARIES:= liblog
+ LOCAL_MODULE := libtty_utils
+ LOCAL_MODULE_TAGS := eng
+ LOCAL_C_INCLUDES += \

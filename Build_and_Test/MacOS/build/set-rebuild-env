@@ -1,0 +1,15 @@
+#!/bin/bash
+
+unset LANG
+export EDITOR=/usr/bin/mcedit
+export PATH=/usr/bin:$PATH
+export PATH=/nfs/ims/proj/icl/gcc_cw/changeset_analysis/scripts:$PATH
+export http_proxy=http://proxy.ims.intel.com:911
+export https_proxy=https://proxy.ims.intel.com:911
+export no_proxy="localhost,.intel.com,127.0.0.0/8,172.16.0.0/20,192.168.0.0/16,10.0.0.0/8"
+export PATH="/nfs/ims/proj/icl/gcc_cw/scripts:$PATH"
+export PYTHONPATH=~/
+export ANT_HOME=/usr/share/ant
+export CLASSPATH=.
+export PATH=~/bin:$PATH.
+export PATH=/usr/java/default/bin/:$PATH.

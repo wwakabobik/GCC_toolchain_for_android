@@ -1,0 +1,19 @@
+diff --git a/gcc-4.9/libgcc/config.host b/gcc-4.9/libgcc/config.host
+index 60340a6..6bd4b39 100644
+--- a/gcc-4.9/libgcc/config.host
++++ b/gcc-4.9/libgcc/config.host
+@@ -285,6 +285,11 @@ aarch64*-*-elf)
+ 	tmake_file="${tmake_file} ${cpu_type}/t-aarch64"
+ 	tmake_file="${tmake_file} ${cpu_type}/t-softfp t-softfp"
+ 	;;
++aarch64*-*-linux*-android*)
++	#md_unwind_header=aarch64/linux-unwind.h  # disable this for now since bionic isn't 64-bit ready yet
++	tmake_file="${tmake_file} ${cpu_type}/t-aarch64"
++	tmake_file="${tmake_file} ${cpu_type}/t-softfp t-softfp"
++	;;
+ aarch64*-*-linux*)
+ 	md_unwind_header=aarch64/linux-unwind.h
+ 	tmake_file="${tmake_file} ${cpu_type}/t-aarch64"
+-- 
+1.8.1.4
+

@@ -1,0 +1,15 @@
+project external/llvm/
+diff --git a/include/llvm/ADT/PointerUnion.h b/include/llvm/ADT/PointerUnion.h
+index 614b59c..51d3ac5 100644
+--- a/include/llvm/ADT/PointerUnion.h
++++ b/include/llvm/ADT/PointerUnion.h
+@@ -56,7 +56,7 @@ namespace llvm {
+     enum {
+       PT1BitsAv = PointerLikeTypeTraits<PT1>::NumLowBitsAvailable,
+       PT2BitsAv = PointerLikeTypeTraits<PT2>::NumLowBitsAvailable,
+-      NumLowBitsAvailable = PT1BitsAv < PT2BitsAv ? PT1BitsAv : PT2BitsAv
++      NumLowBitsAvailable = int(PT1BitsAv) < int(PT2BitsAv) ? int(PT1BitsAv) : int(PT2BitsAv)
+     };
+   };
+   
+

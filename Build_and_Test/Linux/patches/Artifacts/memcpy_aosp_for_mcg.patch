@@ -1,0 +1,25 @@
+diff --git a/libc/include/string.h b/libc/include/string.h
+index 57bfd0b..1c353ef 100644
+--- a/libc/include/string.h
++++ b/libc/include/string.h
+@@ -91,8 +91,6 @@ extern void __memcpy_dest_size_error()
+     __attribute__((__error__("memcpy called with size bigger than destination")));
+ extern void __memcpy_src_size_error()
+     __attribute__((__error__("memcpy called with size bigger than source")));
+-extern void __memcpy_overlap_error()
+-    __attribute__((__error__("memcpy called with overlapping regions")));
+ 
+ __BIONIC_FORTIFY_INLINE
+ void *memcpy (void *dest, const void *src, size_t copy_amount) {
+@@ -109,11 +107,6 @@ void *memcpy (void *dest, const void *src, size_t copy_amount) {
+         __memcpy_src_size_error();
+     }
+ 
+-    if (__builtin_constant_p(d - s) && __builtin_constant_p(copy_amount)
+-            && (((size_t)(d - s) < copy_amount) || ((size_t)(s - d) < copy_amount))
+-            && ((size_t)(d - s) != 0)) {
+-        __memcpy_overlap_error();
+-    }
+ 
+     return __builtin___memcpy_chk(dest, src, copy_amount, d_len);
+ }

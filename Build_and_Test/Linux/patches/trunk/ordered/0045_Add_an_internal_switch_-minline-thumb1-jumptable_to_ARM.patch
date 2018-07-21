@@ -1,0 +1,45 @@
+diff --git a/gcc-4.9/gcc/config/arm/arm.md b/gcc-4.9/gcc/config/arm/arm.md
+index a532e56..aea02fb 100644
+--- a/gcc-4.9/gcc/config/arm/arm.md
++++ b/gcc-4.9/gcc/config/arm/arm.md
+@@ -9605,7 +9605,7 @@
+    (match_operand:SI 2 "const_int_operand" "")	; total range
+    (match_operand:SI 3 "" "")			; table label
+    (match_operand:SI 4 "" "")]			; Out of range label
+-  "TARGET_32BIT || optimize_size || flag_pic"
++  "TARGET_32BIT || ((optimize_size || flag_pic) && !inline_thumb1_jump_table)"
+   "
+   {
+     enum insn_code code;
+diff --git a/gcc-4.9/gcc/config/arm/arm.opt b/gcc-4.9/gcc/config/arm/arm.opt
+index e778407..85826c1 100644
+--- a/gcc-4.9/gcc/config/arm/arm.opt
++++ b/gcc-4.9/gcc/config/arm/arm.opt
+@@ -185,6 +185,10 @@ mthumb-interwork
+ Target Report Mask(INTERWORK)
+ Support calls between Thumb and ARM instruction sets
+ 
++minline-thumb1-jumptable
++Target Report Var(inline_thumb1_jump_table)
++Inline Thumb1 Jump table code
++
+ mtls-dialect=
+ Target RejectNegative Joined Enum(tls_type) Var(target_tls_dialect) Init(TLS_GNU)
+ Specify thread local storage scheme
+diff --git a/gcc-4.9/gcc/config/arm/elf.h b/gcc-4.9/gcc/config/arm/elf.h
+index 96fadeb..d1a112d 100644
+--- a/gcc-4.9/gcc/config/arm/elf.h
++++ b/gcc-4.9/gcc/config/arm/elf.h
+@@ -101,7 +101,8 @@
+    the code more efficient, but for Thumb-1 it's better to put them out of
+    band unless we are generating compressed tables.  */
+ #define JUMP_TABLES_IN_TEXT_SECTION					\
+-   (TARGET_32BIT || (TARGET_THUMB && (optimize_size || flag_pic)))
++   (TARGET_32BIT || (TARGET_THUMB && !inline_thumb1_jump_table		\
++                    && (optimize_size || flag_pic)))
+ 
+ #ifndef LINK_SPEC
+ #define LINK_SPEC "%{mbig-endian:-EB} %{mlittle-endian:-EL} -X"
+-- 
+1.8.1.4
+

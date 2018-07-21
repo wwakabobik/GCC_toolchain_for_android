@@ -1,0 +1,13 @@
+diff --git a/Android.mk b/Android.mk
+index 17b8df4..6bc51cc 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -17,7 +17,7 @@ LOCAL_MODULE := linville.key.pub.pem
+ LOCAL_MODULE_TAGS := optional
+ LOCAL_MODULE_CLASS := ETC
+ LOCAL_MODULE_PATH := $(TARGET_OUT_ETC)/wifi/crda/pubkeys
+-LOCAL_SRC_FILES := pubkeys/linville.key.pub.pem/
++LOCAL_SRC_FILES := pubkeys/linville.key.pub.pem
+ include $(BUILD_PREBUILT)
+ 
+ 

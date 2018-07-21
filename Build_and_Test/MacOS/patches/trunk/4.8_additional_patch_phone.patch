@@ -1,0 +1,15 @@
+project hardware/intel/PRIVATE/libmfldadvci/
+diff --git a/hardware/intel/PRIVATE/libmfldadvci/ia_imaging/ia_redeye/Android.mk b/hardware/intel/PRIVATE/libmfldadvci/ia_imaging/ia_redeye/Android.mk
+index d07f31a..61e32fb 100644
+--- a/hardware/intel/PRIVATE/libmfldadvci/ia_imaging/ia_redeye/Android.mk
++++ b/hardware/intel/PRIVATE/libmfldadvci/ia_imaging/ia_redeye/Android.mk
+@@ -9,7 +9,7 @@ include $(CLEAR_VARS)
+ 
+ LOCAL_MODULE := libia_redeye
+ 
+-LOCAL_CFLAGS += -g -fPIC -W -Wall -Werror -march=atom -mtune=atom -msse3 -O3 -mfpmath=sse
++LOCAL_CFLAGS += -g -fPIC -W -Wall -march=atom -mtune=atom -msse3 -O3 -mfpmath=sse
+ 
+ LOCAL_C_INCLUDES += \
+     hardware/intel/PRIVATE/libmfldadvci/ia_imaging/include
+

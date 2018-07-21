@@ -1,0 +1,39 @@
+diff --git a/gcc-4.9/gcc/cp/call.c b/gcc-4.9/cp/call.c
+index 3ed73b8..338ecbd 100644
+--- a/gcc-4.9/gcc/cp/call.c
++++ b/gcc-4.9/cp/call.c
+@@ -3953,7 +3953,7 @@ build_operator_new_call (tree fnname, vec<tree, va_gc> **args,
+   if (size_check != NULL_TREE)
+     {
+       tree errval = TYPE_MAX_VALUE (sizetype);
+-      if (cxx_dialect >= cxx11)
++      if (cxx_dialect >= cxx11  && flag_exceptions)
+ 	errval = throw_bad_array_new_length ();
+       *size = fold_build3 (COND_EXPR, sizetype, size_check,
+ 			   original_size, errval);
+diff --git a/gcc-4.9/gcc/cp/decl.c b/gcc-4.9/cp/decl.c
+index 80ceca1..5e250c4 100644
+--- a/gcc-4.9/gcc/cp/decl.c
++++ b/gcc-4.9/cp/decl.c
+@@ -6390,7 +6390,7 @@ cp_finish_decl (tree decl, tree init, bool init_const_expr_p,
+ 	   && TYPE_FOR_JAVA (type) && MAYBE_CLASS_TYPE_P (type))
+     error ("non-static data member %qD has Java class type", decl);
+ 
+-  if (cxx_dialect >= cxx1y && array_of_runtime_bound_p (type))
++  if (cxx_dialect >= cxx1y && array_of_runtime_bound_p (type) && flag_exceptions)
+     {
+       /* If the VLA bound is larger than half the address space, or less
+ 	 than zero, throw std::bad_array_length.  */
+diff --git a/gcc-4.9/gcc/cp/init.c b/gcc-4.9/cp/init.c
+index 8fabdcd..53046ab 100644
+--- a/gcc-4.9/gcc/cp/init.c
++++ b/gcc-4.9/cp/init.c
+@@ -2488,7 +2488,7 @@ build_new_1 (vec<tree, va_gc> **placement, tree type, tree nelts,
+ 	    }
+ 	  /* Perform the overflow check.  */
+ 	  tree errval = TYPE_MAX_VALUE (sizetype);
+-	  if (cxx_dialect >= cxx11)
++	  if (cxx_dialect >= cxx11 && flag_exceptions)
+ 	    errval = throw_bad_array_new_length ();
+ 	  if (outer_nelts_check != NULL_TREE)
+             size = fold_build3 (COND_EXPR, sizetype, outer_nelts_check,

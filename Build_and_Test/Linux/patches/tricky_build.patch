@@ -1,0 +1,64 @@
+diff --git a/build/tools/dev-defaults.sh b/build/tools/dev-defaults.sh
+index a728b14..7328b96 100644
+--- a/build/tools/dev-defaults.sh
++++ b/build/tools/dev-defaults.sh
+@@ -9,7 +9,7 @@
+ API_LEVELS="3 4 5 8 9 13 14 15 16 17 18"
+ 
+ # Default ABIs for the target prebuilt binaries.
+-PREBUILT_ABIS="armeabi armeabi-v7a x86 mips"
++PREBUILT_ABIS="armeabi armeabi-v7a x86"
+ 
+ # Location of the STLport sources, relative to the NDK root directory
+ STLPORT_SUBDIR=sources/cxx-stl/stlport
+@@ -58,7 +58,7 @@ DEFAULT_PERL_VERSION=5.16.2
+ DEFAULT_PLATFORM=android-9
+ 
+ # The list of default CPU architectures we support
+-DEFAULT_ARCHS="arm x86 mips"
++DEFAULT_ARCHS="arm x86"
+ 
+ # Default toolchain names and prefix
+ #
+diff --git a/build/tools/dev-rebuild-ndk.sh b/build/tools/dev-rebuild-ndk.sh
+index 1c2ea91..fba7667 100755
+--- a/build/tools/dev-rebuild-ndk.sh
++++ b/build/tools/dev-rebuild-ndk.sh
+@@ -41,7 +41,7 @@ OPTION_QUICK_BUILD="no"
+ register_var_option "--quick" OPTION_QUICK_BUILD "Only build the Linux basics"
+ 
+ # List of toolchains to package
+-OPTION_TOOLCHAINS="$DEFAULT_ARCH_TOOLCHAIN_NAME_arm,$DEFAULT_ARCH_TOOLCHAIN_NAME_x86,$DEFAULT_ARCH_TOOLCHAIN_NAME_mips"
++OPTION_TOOLCHAINS="$DEFAULT_ARCH_TOOLCHAIN_NAME_arm,$DEFAULT_ARCH_TOOLCHAIN_NAME_x86"
+ register_var_option "--toolchains=<toolchain[,toolchain]>" OPTION_TOOLCHAINS "Toolchain(s) to package"
+ 
+ OPTION_TRY_64=
+@@ -86,7 +86,7 @@ linux )
+     if [ "$OPTION_QUICK_BUILD" = "yes" ]; then
+        BUILD_TARGET_PLATFORMS="linux-x86"
+     else
+-       BUILD_TARGET_PLATFORMS="linux-x86 windows"
++       BUILD_TARGET_PLATFORMS="linux-x86"
+     fi
+     ;;
+ darwin )
+@@ -135,7 +135,9 @@ fi
+ 
+ echo
+ echo "Checking for Toolchain sources"
+-NDK_SRC_DIR=/tmp/ndk-$USER/src/android-ndk-src-${TOOLCHAIN_GIT_DATE}${PATCHES_SHA1}
++#NDK_SRC_DIR=/tmp/ndk-$USER/src/android-ndk-src-${TOOLCHAIN_GIT_DATE}${PATCHES_SHA1}
++NDK_SRC_DIR=$baseDir/repositories/toolchain_synced
++
+ if [ ! -d $NDK_SRC_DIR ]
+ then
+     echo "  Downloading Toolchain sources"
+@@ -152,7 +154,7 @@ fi
+ 
+ ARCHS=$(find_ndk_unknown_archs)
+ ARCHS="$DEFAULT_ARCHS $ARCHS"
+-
++ARCHS="x86 arm"
+ # Build the platform
+ echo
+ echo "Build the ndk/platforms directory"

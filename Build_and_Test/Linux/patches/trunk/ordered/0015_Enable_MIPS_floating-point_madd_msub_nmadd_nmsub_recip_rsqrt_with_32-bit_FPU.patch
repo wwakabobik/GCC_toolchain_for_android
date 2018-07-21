@@ -1,0 +1,34 @@
+diff --git a/gcc-4.9/gcc/config/mips/mips.h.orig b/gcc-4.9/gcc/config/mips/mips.h
+index af7eeee..52e1d46 100644
+--- a/gcc-4.9/gcc/config/mips/mips.h.orig
++++ b/gcc-4.9/gcc/config/mips/mips.h
+@@ -884,7 +884,7 @@ struct mips_cpu_info {
+    FP madd and msub instructions, and the FP recip and recip sqrt
+    instructions.  */
+ #define ISA_HAS_FP4		((ISA_MIPS4				\
+-				  || (ISA_MIPS32R2 && TARGET_FLOAT64)	\
++				  || ISA_MIPS32R2			\
+ 				  || ISA_MIPS64				\
+ 				  || ISA_MIPS64R2)			\
+ 				 && !TARGET_MIPS16)
+diff --git a/gcc-4.9/gcc/config/mips/mips.md b/gcc-4.9/gcc/config/mips/mips.md
+index 7aa461d..3ca9d76 100644
+--- a/gcc-4.9/gcc/config/mips/mips.md
++++ b/gcc-4.9/gcc/config/mips/mips.md
+@@ -877,12 +877,10 @@
+   [(SF "!ISA_MIPS1") (DF "!ISA_MIPS1") (V2SF "TARGET_SB1")])
+ 
+ ;; This attribute gives the conditions under which RECIP.fmt and RSQRT.fmt
+-;; instructions can be used.  The MIPS32 and MIPS64 ISAs say that RECIP.D
+-;; and RSQRT.D are unpredictable when doubles are stored in pairs of FPRs,
+-;; so for safety's sake, we apply this restriction to all targets.
++;; instructions can be used.
+ (define_mode_attr recip_condition
+   [(SF "ISA_HAS_FP4")
+-   (DF "ISA_HAS_FP4 && TARGET_FLOAT64")
++   (DF "ISA_HAS_FP4")
+    (V2SF "TARGET_SB1")])
+ 
+ ;; This code iterator allows signed and unsigned widening multiplications
+-- 
+1.8.1.4

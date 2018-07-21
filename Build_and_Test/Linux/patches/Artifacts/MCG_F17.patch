@@ -1,0 +1,117 @@
+project external/srec/
+diff --git a/tools/thirdparty/OpenFst/fst/lib/cache.h b/tools/thirdparty/OpenFst/fst/lib/cache.h
+index ec00d5a..8ea73d9 100644
+--- a/tools/thirdparty/OpenFst/fst/lib/cache.h
++++ b/tools/thirdparty/OpenFst/fst/lib/cache.h
+@@ -61,6 +61,7 @@ class CacheBaseImpl : public VectorFstBaseImpl<S> {
+   using FstImpl<typename S::Arc>::Type;
+   using VectorFstBaseImpl<S>::NumStates;
+   using VectorFstBaseImpl<S>::AddState;
++  using VectorFstBaseImpl<S>::SetState;
+ 
+   typedef S State;
+   typedef typename S::Arc Arc;
+diff --git a/tools/thirdparty/OpenFst/fst/lib/compose.h b/tools/thirdparty/OpenFst/fst/lib/compose.h
+index 24b169f..996092f 100644
+--- a/tools/thirdparty/OpenFst/fst/lib/compose.h
++++ b/tools/thirdparty/OpenFst/fst/lib/compose.h
+@@ -95,6 +95,8 @@ class ComposeFstImplBase : public CacheImpl<A> {
+ 
+   using CacheBaseImpl< CacheState<A> >::HasStart;
+   using CacheBaseImpl< CacheState<A> >::HasFinal;
++  using CacheBaseImpl< CacheState<A> >::SetStart;
++  using CacheBaseImpl< CacheState<A> >::SetFinal;
+   using CacheBaseImpl< CacheState<A> >::HasArcs;
+ 
+   typedef typename A::Label Label;
+@@ -332,6 +334,7 @@ class ComposeFstImpl : public ComposeFstImplBase<A> {
+   typedef typename A::Weight  Weight;
+   using FstImpl<A>::SetType;
+   using FstImpl<A>::SetProperties;
++  using ComposeFstImplBase<A>::SetArcs;
+ 
+   enum FindType { FIND_INPUT  = 1,          // find input label on fst2
+                   FIND_OUTPUT = 2,          // find output label on fst1
+diff --git a/tools/thirdparty/OpenFst/fst/lib/const-fst.h b/tools/thirdparty/OpenFst/fst/lib/const-fst.h
+index 74f0c91..229e768 100644
+--- a/tools/thirdparty/OpenFst/fst/lib/const-fst.h
++++ b/tools/thirdparty/OpenFst/fst/lib/const-fst.h
+@@ -36,6 +36,8 @@ class ConstFstImpl : public FstImpl<A> {
+   using FstImpl<A>::SetProperties;
+   using FstImpl<A>::Properties;
+   using FstImpl<A>::WriteHeaderAndSymbols;
++  using FstImpl<A>::SetInputSymbols;
++  using FstImpl<A>::SetOutputSymbols;
+ 
+   typedef typename A::Weight Weight;
+   typedef typename A::StateId StateId;
+diff --git a/tools/thirdparty/OpenFst/fst/lib/determinize.h b/tools/thirdparty/OpenFst/fst/lib/determinize.h
+index 63b96ec..96adc61 100644
+--- a/tools/thirdparty/OpenFst/fst/lib/determinize.h
++++ b/tools/thirdparty/OpenFst/fst/lib/determinize.h
+@@ -125,6 +125,8 @@ class DeterminizeFstImplBase : public CacheImpl<A> {
+ 
+   using CacheBaseImpl< CacheState<A> >::HasStart;
+   using CacheBaseImpl< CacheState<A> >::HasFinal;
++  using CacheBaseImpl< CacheState<A> >::SetStart;
++  using CacheBaseImpl< CacheState<A> >::SetFinal;
+   using CacheBaseImpl< CacheState<A> >::HasArcs;
+ 
+   typedef typename A::Label Label;
+@@ -205,6 +207,7 @@ template <class A, class C>
+ class DeterminizeFsaImpl : public DeterminizeFstImplBase<A> {
+  public:
+   using DeterminizeFstImplBase<A>::fst_;
++  using DeterminizeFstImplBase<A>::SetArcs;
+ 
+   typedef typename A::Label Label;
+   typedef typename A::Weight Weight;
+diff --git a/tools/thirdparty/OpenFst/fst/lib/factor-weight.h b/tools/thirdparty/OpenFst/fst/lib/factor-weight.h
+index 3a2ef85..62b3a82 100644
+--- a/tools/thirdparty/OpenFst/fst/lib/factor-weight.h
++++ b/tools/thirdparty/OpenFst/fst/lib/factor-weight.h
+@@ -142,7 +142,11 @@ class FactorWeightFstImpl
+ 
+   using CacheBaseImpl< CacheState<A> >::HasStart;
+   using CacheBaseImpl< CacheState<A> >::HasFinal;
++  using CacheBaseImpl< CacheState<A> >::SetStart;
++  using CacheBaseImpl< CacheState<A> >::SetFinal;
+   using CacheBaseImpl< CacheState<A> >::HasArcs;
++  using CacheBaseImpl< CacheState<A> >::AddArc;
++  using CacheBaseImpl< CacheState<A> >::SetArcs;
+ 
+   typedef A Arc;
+   typedef typename A::Label Label;
+diff --git a/tools/thirdparty/OpenFst/fst/lib/map.h b/tools/thirdparty/OpenFst/fst/lib/map.h
+index 722aef3..a78417f 100644
+--- a/tools/thirdparty/OpenFst/fst/lib/map.h
++++ b/tools/thirdparty/OpenFst/fst/lib/map.h
+@@ -257,8 +257,12 @@ class MapFstImpl : public CacheImpl<B> {
+   using VectorFstBaseImpl<typename CacheImpl<B>::State>::NumStates;
+ 
+   using CacheImpl<B>::HasArcs;
++  using CacheImpl<B>::AddArc;
++  using CacheImpl<B>::SetArcs;
+   using CacheImpl<B>::HasFinal;
+   using CacheImpl<B>::HasStart;
++  using CacheImpl<B>::SetStart;
++  using CacheImpl<B>::SetFinal;
+ 
+   friend class StateIterator< MapFst<A, B, C> >;
+ 
+diff --git a/tools/thirdparty/OpenFst/fst/lib/vector-fst.h b/tools/thirdparty/OpenFst/fst/lib/vector-fst.h
+index 8e99521..71f1799 100644
+--- a/tools/thirdparty/OpenFst/fst/lib/vector-fst.h
++++ b/tools/thirdparty/OpenFst/fst/lib/vector-fst.h
+@@ -182,6 +182,11 @@ class VectorFstImpl : public VectorFstBaseImpl< VectorState<A> > {
+ 
+   using VectorFstBaseImpl<VectorState<A> >::Start;
+   using VectorFstBaseImpl<VectorState<A> >::NumStates;
++  using VectorFstBaseImpl<VectorState<A> >::GetState;
++  using VectorFstBaseImpl<VectorState<A> >::Final;
++  using VectorFstBaseImpl<VectorState<A> >::SetInputSymbols;
++  using VectorFstBaseImpl<VectorState<A> >::SetOutputSymbols;
++  using VectorFstBaseImpl<VectorState<A> >::ReserveArcs;
+ 
+   friend class MutableArcIterator< VectorFst<A> >;
+ 

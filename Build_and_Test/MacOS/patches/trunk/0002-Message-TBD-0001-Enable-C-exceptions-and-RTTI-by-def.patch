@@ -1,0 +1,29 @@
+From ee0431dd3ba889fdad837e3c70e3fd331b54a394 Mon Sep 17 00:00:00 2001
+From: Pavel Chupin <pavel.v.chupin@intel.com>
+Date: Mon, 4 Feb 2013 17:48:58 +0400
+Subject: [PATCH 2/5] Message TBD:
+ 0001-Enable-C-exceptions-and-RTTI-by-default.patch
+
+Signed-off-by: Pavel Chupin <pavel.v.chupin@intel.com>
+---
+ gcc/config/linux-android.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/gcc/config/linux-android.h b/gcc/config/linux-android.h
+index 2c87c84..47a3e7c 100644
+--- a/gcc/config/linux-android.h
++++ b/gcc/config/linux-android.h
+@@ -45,8 +45,8 @@
+   "%{!fno-pic:%{!fno-PIC:%{!fpic:%{!fPIC: -fPIC}}}}"
+ 
+ #define ANDROID_CC1PLUS_SPEC						\
+-  "%{!fexceptions:%{!fno-exceptions: -fno-exceptions}} "		\
+-  "%{!frtti:%{!fno-rtti: -fno-rtti}}"
++  "%{!fexceptions:%{!fno-exceptions: -fexceptions}} "		\
++  "%{!frtti:%{!fno-rtti: -frtti}}"
+ 
+ #define ANDROID_LIB_SPEC \
+   "%{!static: -ldl}"
+-- 
+1.7.11.4
+

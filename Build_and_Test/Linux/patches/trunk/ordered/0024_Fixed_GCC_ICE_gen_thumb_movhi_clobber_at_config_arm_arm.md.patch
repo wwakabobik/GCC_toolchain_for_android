@@ -1,0 +1,30 @@
+diff --git a/gcc-4.9/gcc/config/arm/arm.c b/gcc-4.9/gcc/config/arm/arm.c
+index 2077b97..dd88f0b 100644
+--- a/gcc-4.9/gcc/config/arm/arm.c
++++ b/gcc-4.9/gcc/config/arm/arm.c
+@@ -6443,7 +6443,8 @@ arm_preferred_reload_class (rtx x ATTRIBUTE_UNUSED, reg_class_t rclass)
+       if (rclass == GENERAL_REGS
+ 	  || rclass == HI_REGS
+ 	  || rclass == NO_REGS
+-	  || rclass == STACK_REG)
++	  || rclass == STACK_REG
++	  || rclass == CORE_REGS)
+ 	return LO_REGS;
+       else
+ 	return rclass;
+diff --git a/gcc-4.9/gcc/config/arm/arm.md b/gcc-4.9/gcc/config/arm/arm.md
+index f3c59f3..a532e56 100644
+--- a/gcc-4.9/gcc/config/arm/arm.md
++++ b/gcc-4.9/gcc/config/arm/arm.md
+@@ -6999,7 +6999,7 @@
+ (define_expand "reload_inhi"
+   [(parallel [(match_operand:HI 0 "s_register_operand" "=r")
+ 	      (match_operand:HI 1 "arm_reload_memory_operand" "o")
+-	      (match_operand:DI 2 "s_register_operand" "=&r")])]
++	      (match_operand:DI 2 "s_register_operand" "=&l")])]
+   "TARGET_EITHER"
+   "
+   if (TARGET_ARM)
+-- 
+1.8.1.4
+

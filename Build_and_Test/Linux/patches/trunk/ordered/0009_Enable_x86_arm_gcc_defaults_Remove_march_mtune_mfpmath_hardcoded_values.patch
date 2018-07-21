@@ -1,0 +1,52 @@
+diff --git a/gcc-4.9/gcc/config/arm/linux-eabi.h b/gcc-4.9/gcc/config/arm/linux-eabi.h
+index 3249538..dd7272d 100644
+--- a/gcc-4.9/gcc/config/arm/linux-eabi.h
++++ b/gcc-4.9/gcc/config/arm/linux-eabi.h
+@@ -91,7 +91,7 @@
+ #define CC1_SPEC							\
+   LINUX_OR_ANDROID_CC (GNU_USER_TARGET_CC1_SPEC " " ASAN_CC1_SPEC,	\
+ 		       GNU_USER_TARGET_CC1_SPEC " " ASAN_CC1_SPEC " "	\
+-		       ANDROID_CC1_SPEC)
++		       ANDROID_CC1_SPEC("-fpic"))
+ 
+ #define CC1PLUS_SPEC \
+   LINUX_OR_ANDROID_CC ("", ANDROID_CC1PLUS_SPEC)
+diff --git a/gcc-4.9/gcc/config/i386/linux-common.h b/gcc-4.9/gcc/config/i386/linux-common.h
+index 1e8bf6b..731a5bd 100644
+--- a/gcc-4.9/gcc/config/i386/linux-common.h
++++ b/gcc-4.9/gcc/config/i386/linux-common.h
+@@ -30,7 +30,14 @@ along with GCC; see the file COPYING3.  If not see
+ #undef CC1_SPEC
+ #define CC1_SPEC \
+   LINUX_OR_ANDROID_CC (GNU_USER_TARGET_CC1_SPEC, \
+-		       GNU_USER_TARGET_CC1_SPEC " " ANDROID_CC1_SPEC)
++                       GNU_USER_TARGET_CC1_SPEC \
++                       " -mstackrealign -msse3" \
++                       " -m32 -fno-short-enums" \
++                       " " \
++                       ANDROID_CC1_SPEC("-fPIC"))
++
++#define CC1PLUS_SPEC \
++  LINUX_OR_ANDROID_CC ("", ANDROID_CC1PLUS_SPEC)
+ 
+ #undef	LINK_SPEC
+ #define LINK_SPEC \
+diff --git a/gcc-4.9/gcc/config/linux-android.h b/gcc-4.9/gcc/config/linux-android.h
+index c97b9b7..a82c3f0 100644
+--- a/gcc-4.9/gcc/config/linux-android.h
++++ b/gcc-4.9/gcc/config/linux-android.h
+@@ -40,9 +40,9 @@
+ #define ANDROID_LINK_SPEC \
+   "%{shared: -Bsymbolic} -z noexecstack -z relro -z now"
+ 
+-#define ANDROID_CC1_SPEC						\
++#define ANDROID_CC1_SPEC(ANDROID_PIC_DEFAULT)				\
+   "%{!mglibc:%{!muclibc:%{!mbionic: -mbionic}}} "			\
+-  "%{!fno-pic:%{!fno-PIC:%{!fpic:%{!fPIC: -fPIC}}}}"
++  "%{!fno-pic:%{!fno-PIC:%{!fpic:%{!fPIC: " ANDROID_PIC_DEFAULT "}}}}"
+ 
+ #define ANDROID_CC1PLUS_SPEC						\
+   "%{!fexceptions:%{!fno-exceptions: -fno-exceptions}} "		\
+-- 
+1.8.1.4
+

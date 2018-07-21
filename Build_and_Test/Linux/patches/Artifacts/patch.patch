@@ -1,0 +1,13 @@
+diff --git a/build/tools/dev-defaults.sh b/build/tools/dev-defaults.sh
+index 8186550..202de13 100644
+--- a/build/tools/dev-defaults.sh
++++ b/build/tools/dev-defaults.sh
+@@ -26,7 +26,7 @@ GNUSTL_SUBDIR=sources/cxx-stl/gnu-libstdc++
+ TOOLCHAIN_GIT_DATE=now
+ 
+ # The space-separated list of all GCC versions we support in this NDK
+-DEFAULT_GCC_VERSION_LIST="4.6 4.4.3"
++DEFAULT_GCC_VERSION_LIST="4.6"
+ 
+ # The default GCC version for this NDK, i.e. the first item in
+ # $DEFAULT_GCC_VERSION_LIST

@@ -1,0 +1,16 @@
+diff --git a/gcc-4.9/libstdc++-v3/configure b/gcc-4.9/libstdc++-v3/configure
+index f40ddcf..faaa53d 100755
+--- a/gcc-4.9/libstdc++-v3/configure
++++ b/gcc-4.9/libstdc++-v3/configure
+@@ -72416,7 +72416,7 @@ $as_echo_n "checking for gthreads library... " >&6; }
+ 
+   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+-#include "gthr.h"
++#include "gthr-$target_thread_file.h"
+ int
+ main ()
+ {
+-- 
+1.8.1.4
+

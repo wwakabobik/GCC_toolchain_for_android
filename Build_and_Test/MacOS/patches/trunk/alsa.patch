@@ -1,0 +1,13 @@
+diff --git a/audio_hw_configurable/audio_route_manager/AudioRouteManager.cpp b/audio_hw_configurable/audio_route_manager/AudioRouteManager.cpp
+index 1aef512..b565f2e 100755
+--- a/audio_hw_configurable/audio_route_manager/AudioRouteManager.cpp
++++ b/audio_hw_configurable/audio_route_manager/AudioRouteManager.cpp
+@@ -67,7 +67,7 @@ class CParameterMgrPlatformConnectorLogger : public CParameterMgrPlatformConnect
+ {
+ public:
+     CParameterMgrPlatformConnectorLogger() {}
+-
++    virtual ~CParameterMgrPlatformConnectorLogger() {}
+     virtual void log(bool bIsWarning, const string& strLog)
+     {
+         if (bIsWarning) {

@@ -1,0 +1,305 @@
+Index: gcc/testsuite/g++.dg/gcov/gcov.exp
+===================================================================
+--- gcc/testsuite/g++.dg/gcov/gcov.exp	(revision 201723)
++++ gcc/testsuite/g++.dg/gcov/gcov.exp	(working copy)
+@@ -21,12 +21,16 @@
+ load_lib gcov.exp
+ 
+ global GXX_UNDER_TEST
+-
+-# Find gcov in the same directory as $GXX_UNDER_TEST.
+-if { ![is_remote host] && [string match "*/*" [lindex $GXX_UNDER_TEST 0]] } {
+-    set GCOV [file dirname [lindex $GXX_UNDER_TEST 0]]/gcov
++global GCOV_UNDER_TEST
++if { $GCOV_UNDER_TEST != "" } {
++    set GCOV $GCOV_UNDER_TEST
+ } else {
+-    set GCOV gcov
++    # Find gcov in the same directory as $GXX_UNDER_TEST.
++    if { ![is_remote host] && [string match "*/*" [lindex $GXX_UNDER_TEST 0]] } {
++	set GCOV [file dirname [lindex $GXX_UNDER_TEST 0]]/gcov
++    } else {
++	set GCOV gcov
++    }
+ }
+ 
+ # Initialize harness.
+Index: gcc/testsuite/gcc.dg/guality/guality.exp
+===================================================================
+--- gcc/testsuite/gcc.dg/guality/guality.exp	(revision 201723)
++++ gcc/testsuite/gcc.dg/guality/guality.exp	(working copy)
+@@ -23,20 +23,24 @@
+       set ret [string match "*1 PASS, 0 FAIL, 0 UNRESOLVED*" $execout]
+     }
+     remote_file build delete $output
+-    return $ret
++    return 1
++    #return $ret
+ }
+ 
+ dg-init
+ 
+ global GDB
+-if ![info exists ::env(GUALITY_GDB_NAME)] {
+-    if [info exists GDB] {
+-	set guality_gdb_name "$GDB"
+-    } else {
+-	set guality_gdb_name "[transform gdb]"
+-    }
+-    setenv GUALITY_GDB_NAME "$guality_gdb_name"
++if [info exists GDB] {
++  set guality_gdb_name "$GDB"
++} else {
++  if { ![is_remote host] && [string match "*/*" [lindex $GCC_UNDER_TEST 0]] } {
++    set g_name [regsub {gcc\s*$} [lindex [split [lindex $GCC_UNDER_TEST 0] "/"] end]   {gdb}]
++    set guality_gdb_name [file dirname [lindex $GCC_UNDER_TEST 0]]/$g_name
++  } else {
++    set guality_gdb_name "[transform gdb]"
++  }
+ }
++setenv GUALITY_GDB_NAME "$guality_gdb_name"
+ 
+ if {[check_guality "
+   #include \"$srcdir/$subdir/guality.h\"
+Index: gcc/testsuite/gcc.misc-tests/gcov.exp
+===================================================================
+--- gcc/testsuite/gcc.misc-tests/gcov.exp	(revision 201723)
++++ gcc/testsuite/gcc.misc-tests/gcov.exp	(working copy)
+@@ -22,11 +22,17 @@
+ 
+ global GCC_UNDER_TEST
+ 
+-# For now find gcov in the same directory as $GCC_UNDER_TEST.
+-if { ![is_remote host] && [string match "*/*" [lindex $GCC_UNDER_TEST 0]] } {
+-    set GCOV [file dirname [lindex $GCC_UNDER_TEST 0]]/gcov
++
++global GCOV_UNDER_TEST
++if { $GCOV_UNDER_TEST != "" } {
++    set GCOV $GCOV_UNDER_TEST
+ } else {
+-    set GCOV gcov
++    # For now find gcov in the same directory as $GCC_UNDER_TEST.
++     if { ![is_remote host] && [string match "*/*" [lindex $GCC_UNDER_TEST 0]] } {
++ 	set GCOV [file dirname [lindex $GCC_UNDER_TEST 0]]/gcov
++     } else {
++ 	set GCOV gcov
++     }
+ }
+ 
+ # Initialize harness.
+Index: gcc/testsuite/lib/file-format.exp
+===================================================================
+--- gcc/testsuite/lib/file-format.exp	(revision 201723)
++++ gcc/testsuite/lib/file-format.exp	(working copy)
+@@ -25,12 +25,15 @@
+ proc gcc_target_object_format { } { 
+     global gcc_target_object_format_saved
+     global tool
++    global target_triplet
+ 
+     if [info exists gcc_target_object_format_saved] {
+         verbose "gcc_target_object_format returning saved $gcc_target_object_format_saved" 2
+     } elseif { [istarget *-*-darwin*] } {
+ 	# Darwin doesn't necessarily have objdump, so hand-code it.
+ 	set gcc_target_object_format_saved mach-o
++    } elseif { [string match "*-android*" $target_triplet] } {
++             set gcc_target_object_format_saved elf
+     } elseif { [istarget hppa*-*-hpux*] } {
+ 	# HP-UX doesn't necessarily have objdump, so hand-code it.
+ 	if { [istarget hppa*64*-*-hpux*] } {
+Index: gcc/testsuite/lib/g++.exp
+===================================================================
+--- gcc/testsuite/lib/g++.exp	(revision 201723)
++++ gcc/testsuite/lib/g++.exp	(working copy)
+@@ -81,13 +82,14 @@
+       return "${flags}"
+     }
+ 
+-    set gccpath ${paths}
+-
+-    set odir [lookfor_file ${gccpath} libstdc++-v3]
+-    if { ${odir} != "" } {
+-      append flags [exec sh ${odir}/scripts/testsuite_flags --build-includes]  
++    global bridge_mode
++    if { ! [ info exists bridge_mode ] } {
++      set gccpath ${paths}
++      set odir [lookfor_file ${gccpath} libstdc++-v3]
++      if { ${odir} != "" } {
++        append flags [exec sh ${odir}/scripts/testsuite_flags --build-includes]
++      }
+     }
+-
+     return "$flags"
+ }
+ 
+Index: gcc/testsuite/lib/gcc-gdb-test.exp
+===================================================================
+--- gcc/testsuite/lib/gcc-gdb-test.exp	(revision 201723)
++++ gcc/testsuite/lib/gcc-gdb-test.exp	(working copy)
+@@ -22,7 +23,8 @@
+ # Argument 2 is the expected value of the variable
+ # Argument 3 handles expected failures and the like
+ proc gdb-test { args } {
+-    if { ![isnative] || [is_remote target] } { return }
++    global bridge_mode
++    if { ![isnative] && ![info exists bridge_mode] || [is_remote target] } { return }
+ 
+     if { [llength $args] >= 4 } {
+ 	switch [dg-process-target [lindex $args 3]] {
+@@ -40,10 +41,35 @@
+     upvar 2 prog prog
+ 
+     set gdb_name $::env(GUALITY_GDB_NAME)
++
+     set testname "$testcase line [lindex $args 0] [lindex $args 1] == [lindex $args 2]"
+     set output_file "[file rootname [file tail $prog]].exe"
+     set cmd_file "[file rootname [file tail $prog]].gdb"
+ 
++    set res ""
++    global target_triplet
++    global bridge_mode
++    if { [info exists bridge_mode] && [string match "*-android*" $target_triplet] } {
++	global android_tmp_dir
++	set fd [open $cmd_file "w"]
++	puts $fd "target remote :5038"
++	puts $fd "break [lindex $args 0]"
++	puts $fd "continue"
++	puts $fd "print [lindex $args 1]"
++	puts $fd "print [lindex $args 2]"
++	puts $fd "quit"
++	close $fd
++	set bridge [target_info generic_name]
++	send_log "Spawning: $gdb_name -nx -nw -quiet -x $cmd_file ./$output_file\n"
++	${bridge}_exec [target_info name] forward tcp:5038 tcp:5040
++	${bridge}_download [target_info name] ./$output_file $android_tmp_dir/$output_file"
++	sleep 2
++	${bridge}_exec [target_info name] "gdbserver :5040 $android_tmp_dir/$output_file &"
++	sleep 2
++	set res [remote_spawn "unix" "$gdb_name -nx -nw -quiet -x $cmd_file ./$output_file"]
++    }
++
++    if { [isnative] } {
+     set fd [open $cmd_file "w"]
+     puts $fd "break [lindex $args 0]"
+     puts $fd "run"
+@@ -54,6 +78,8 @@
+ 
+     send_log "Spawning: $gdb_name -nx -nw -quiet -x $cmd_file ./$output_file\n"
+     set res [remote_spawn target "$gdb_name -nx -nw -quiet -x $cmd_file ./$output_file"]
++    }
++
+     if { $res < 0 || $res == "" } {
+ 	unsupported "$testname"
+ 	file delete $cmd_file
+Index: gcc/testsuite/lib/gcov.exp
+===================================================================
+--- gcc/testsuite/lib/gcov.exp	(revision 201723)
++++ gcc/testsuite/lib/gcov.exp	(working copy)
+@@ -334,6 +335,19 @@
+ 
+     verbose "Running $GCOV $testcase" 2
+     set testcase [remote_download host $testcase]
++
++    if { ![is_remote host] } {
++	set not_cleaned_source_name [ string trim $gcov_args " " ]
++       global bridge_mode
++	if { [ info exists bridge_mode ] && [ string compare "$not_cleaned_source_name" "" ] != 0 } {
++	    set pieces_list [split $not_cleaned_source_name " "]
++	    set src_name [lrange $pieces_list end end]
++	    set pure_source_name [file rootname $src_name]
++	    global bridge_tmp_dir
++	    [target_info generic_name]_upload [target_info name] $bridge_tmp_dir/$pure_source_name.gcda [pwd]
++	}
++    }
++
+     set result [remote_exec host $GCOV $gcov_args]
+     if { [lindex $result 0] != 0 } {
+ 	if { $xfailed } {
+Index: gcc/testsuite/lib/lto.exp
+===================================================================
+--- gcc/testsuite/lib/lto.exp	(revision 201723)
++++ gcc/testsuite/lib/lto.exp	(working copy)
+@@ -559,11 +559,11 @@
+ 	    verbose "Running dg-final tests." 3
+ 	    verbose "dg-final-proc:\n[info body dg-final-proc]" 4
+ 	    if [catch "dg-final-proc $src1" errmsg] {
+-		perror "$name: error executing dg-final: $errmsg"
++		perror "$execname: error executing dg-final: $errmsg"
+ 		# ??? The call to unresolved here is necessary to clear
+ 		# `errcnt'.  What we really need is a proc like perror that
+ 		# doesn't set errcnt.  It should also set exit_status to 1.
+-		unresolved "$name: error executing dg-final: $errmsg"
++		unresolved "$execname: error executing dg-final: $errmsg"
+ 	    }
+ 	}
+ 
+@@ -609,12 +609,26 @@
+ 
+     # Find nm like we find g++ in g++.exp.
+     if ![info exists nm]  {
+-	set nm [findfile $base_dir/../../../binutils/nm \
++       # we suppose that nm is placed with gcc and they have the same prefix both
++       global GCC_UNDER_TEST
++       set nm_name [regsub {g(\+\+|cc)\s*$} [lindex [split [lindex $GCC_UNDER_TEST 0] "/"] end]   {nm}]
++       if { ![is_remote host] && [string match "*/*" [lindex $GCC_UNDER_TEST 0]] } {
++          set nm_temp [file dirname [lindex $GCC_UNDER_TEST 0]]/$nm_name
++       } else {
++          set nm_temp $nm_name
++       }
++       set nm   [findfile $nm_temp $nm_temp ""  ]
++
++       if { ${nm} == "" } {
++             set nm [findfile $base_dir/../../../binutils/nm \
+ 		$base_dir/../../../binutils/nm \
+ 	        [findfile $base_dir/../../nm $base_dir/../../nm \
+ 		      [findfile $base_dir/nm $base_dir/nm \
+ 		       [transform nm]]]]
+-	verbose -log "nm is $nm"
++       }
++       verbose -log "nm is $nm"
++    } else {
++        verbose "nm=$nm"
+     }
+ 
+     set output_file "[glob -nocomplain $execname]"
+Index: gcc/testsuite/lib/profopt.exp
+===================================================================
+--- gcc/testsuite/lib/profopt.exp	(revision 201723)
++++ gcc/testsuite/lib/profopt.exp	(working copy)
+@@ -312,7 +313,13 @@
+ 	# Make sure the profile data was generated, and fail if not.
+ 	if { $status == "pass" } {
+ 	    foreach ext $prof_ext {
+-		remote_upload target $tmpdir/$base.$ext
++		global bridge_mode
++		if { [ info exists bridge_mode ] && $ext == "gcda" } {
++		    global bridge_tmp_dir
++		    [target_info generic_name]_upload [target_info name] $bridge_tmp_dir/$base.gcda $tmpdir
++		} else {
++		    remote_upload target $tmpdir/$base.$ext
++		}
+ 		set files [glob -nocomplain $base.$ext]
+ 		if { $files == "" } {
+ 		    set status "fail"
+Index: gcc/testsuite/lib/scanasm.exp
+===================================================================
+--- gcc/testsuite/lib/scanasm.exp	(revision 201723)
++++ gcc/testsuite/lib/scanasm.exp	(working copy)
+@@ -52,6 +53,17 @@
+     set pattern [lindex $orig_args 0]
+     set printable_pattern [make_pattern_printable $pattern]
+ 
++    # it's the patch for tests like gcc.dg/pr47793.c (4.7.2) for target cross
++    global bridge_mode
++    if { [file extension $output_file] == ".gcda" && [ info exists bridge_mode ] } {
++	global tmpdir
++	upvar 3 dg-do-what stage_list
++	if { [lindex $stage_list 0] == "run" } {
++	    global bridge_tmp_dir
++	    [target_info generic_name]_upload [target_info name] $bridge_tmp_dir/$output_file $tmpdir
++	}
++    }
++
+     if { [is_remote host] } {
+ 	remote_upload host "$output_file"
+     } 

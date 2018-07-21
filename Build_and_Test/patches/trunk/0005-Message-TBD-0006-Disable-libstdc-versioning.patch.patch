@@ -1,0 +1,36 @@
+From 2929d77da425986a046e783392c64c3439f2210f Mon Sep 17 00:00:00 2001
+From: Pavel Chupin <pavel.v.chupin@intel.com>
+Date: Mon, 4 Feb 2013 17:52:25 +0400
+Subject: [PATCH 5/5] Message TBD: 0006-Disable-libstdc-versioning.patch
+
+Signed-off-by: Pavel Chupin <pavel.v.chupin@intel.com>
+---
+ libstdc++-v3/src/Makefile.in | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/libstdc++-v3/src/Makefile.in b/libstdc++-v3/src/Makefile.in
+index 69001b4..e875539 100644
+--- a/libstdc++-v3/src/Makefile.in
++++ b/libstdc++-v3/src/Makefile.in
+@@ -336,7 +336,7 @@ AM_CPPFLAGS = $(GLIBCXX_INCLUDES)
+ SUBDIRS = c++98 c++11
+ 
+ # Cross compiler support.
+-toolexeclib_LTLIBRARIES = libstdc++.la
++toolexeclib_LTLIBRARIES = libgnustl_shared.la
+ @GLIBCXX_LDBL_COMPAT_FALSE@ldbl_compat_sources = 
+ @GLIBCXX_LDBL_COMPAT_TRUE@ldbl_compat_sources = compatibility-ldbl.cc
+ parallel_compat_sources = \
+@@ -543,6 +543,9 @@ clean-toolexeclibLTLIBRARIES:
+ libstdc++.la: $(libstdc___la_OBJECTS) $(libstdc___la_DEPENDENCIES) 
+ 	$(libstdc___la_LINK) -rpath $(toolexeclibdir) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(LIBS)
+ 
++libgnustl_shared.la: $(libstdc___la_OBJECTS) $(libstdc___la_DEPENDENCIES)
++	$(libstdc___la_LINK) -rpath $(toolexeclibdir) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(LIBS)
++
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT)
+ 
+-- 
+1.7.11.4
+

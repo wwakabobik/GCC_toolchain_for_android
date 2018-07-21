@@ -1,0 +1,38 @@
+From 0dd7f1a4f06fb6f934ded5824790f2c117f4a9cb Mon Sep 17 00:00:00 2001
+From: Pavel Chupin <pavel.v.chupin@intel.com>
+Date: Mon, 4 Feb 2013 17:50:59 +0400
+Subject: [PATCH 4/5] Message TBD:
+ 0002-gcc-prevent-crash-on-Eclair-and-older-platforms.patch
+
+Signed-off-by: Pavel Chupin <pavel.v.chupin@intel.com>
+---
+ libgcc/gthr-posix.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/libgcc/gthr-posix.h b/libgcc/gthr-posix.h
+index d357014..f59bf3f 100644
+--- a/libgcc/gthr-posix.h
++++ b/libgcc/gthr-posix.h
+@@ -33,6 +33,19 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+ #define __GTHREADS 1
+ #define __GTHREADS_CXX0X 1
+ 
++/* The following should normally be in a different header file,
++ * but I couldn't find the right location. The point of the macro
++ * definition below is to prevent libsupc++ and libstdc++ to reference
++ * weak symbols in their static C++ constructors. Such code crashes
++ * when a shared object linked statically to these libraries is
++ * loaded on Android 2.1 (Eclair) and older platform releases, due
++ * to a dynamic linker bug.
++ */
++#ifdef __ANDROID__
++#undef GTHREAD_USE_WEAK
++#define GTHREAD_USE_WEAK 0
++#endif
++
+ #include <pthread.h>
+ 
+ #if ((defined(_LIBOBJC) || defined(_LIBOBJC_WEAK)) \
+-- 
+1.7.11.4
+

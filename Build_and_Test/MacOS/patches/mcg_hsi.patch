@@ -1,0 +1,14 @@
+diff --git a/components/hsi/Android.mk b/components/hsi/Android.mk
+index 18373d2..b30491d 100644
+--- a/components/hsi/Android.mk
++++ b/components/hsi/Android.mk
+@@ -14,7 +14,8 @@ LOCAL_MODULE := hta
+ LOCAL_SHARED_LIBRARIES := \
+     libglib_ct \
+     libct_tools \
+-    libct_framework
++    libct_framework \
++    libdl
+ LOCAL_MODULE_TAGS := eng
+ LOCAL_LDLIBS += -lpthread
+ LOCAL_C_INCLUDES += \

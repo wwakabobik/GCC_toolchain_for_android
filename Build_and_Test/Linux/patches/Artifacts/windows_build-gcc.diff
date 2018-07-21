@@ -1,0 +1,17 @@
+diff --git a/build/tools/build-gcc.sh b/build/tools/build-gcc.sh
+index 24e45d0..fc27772 100755
+--- a/build/tools/build-gcc.sh
++++ b/build/tools/build-gcc.sh
+@@ -274,9 +274,9 @@ export ABI=$HOST_GMP_ABI
+ CFLAGS_FOR_BUILD="-O2 -s -Wno-error"
+ LDFLAGS_FOR_BUILD=
+ 
+-if [ "$MINGW" = "yes" ] ; then
+-    CFLAGS_FOR_BUILD=$CFLAGS_FOR_BUILD" -D__USE_MINGW_ANSI_STDIO=1"
+-fi
++#if [ "$MINGW" = "yes" ] ; then
++#    CFLAGS_FOR_BUILD=$CFLAGS_FOR_BUILD" -D__USE_MINGW_ANSI_STDIO=1"
++#fi
+ 
+ CFLAGS="$CFLAGS_FOR_BUILD $HOST_CFLAGS"
+ LDFLAGS="$LDFLAGS_FOR_BUILD $HOST_LDFLAGS"

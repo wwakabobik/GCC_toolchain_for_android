@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="us-ascii" ?>
+<results>
+  <test-run Build="Android NDK 20120806" BuildCreated="2012/07/02 06:05:32 AM" BuildLocation="AOSP trunk" Product="Android_NDK_4.6" TargetOS="Android ICS" TestGroup="10KPI" TestSuite="Performance" TestingType="Android KPI" TargetProcessor="MFLD"/>
+</results>

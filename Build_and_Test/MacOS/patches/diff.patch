@@ -1,0 +1,24 @@
+diff --git a/build/tools/dev-rebuild-ndk.sh b/build/tools/dev-rebuild-ndk.sh
+index f1bc39c..a1bfb0e 100755
+--- a/build/tools/dev-rebuild-ndk.sh
++++ b/build/tools/dev-rebuild-ndk.sh
+@@ -114,7 +114,9 @@ fi
+ 
+ echo
+ echo "Checking for Toolchain sources"
+-NDK_SRC_DIR=/tmp/ndk-$USER/src/android-ndk-src-${TOOLCHAIN_GIT_DATE}${PATCHES_SHA1}
++#NDK_SRC_DIR=/tmp/ndk-$USER/src/android-ndk-src-${TOOLCHAIN_GIT_DATE}${PATCHES_SHA1}
++NDK_SRC_DIR=/users/abantonx/AndroidBuild/repos/1028/toolchain_downloads
++
+ if [ ! -d $NDK_SRC_DIR ]
+ then
+     echo "  Downloading Toolchain sources"
+@@ -163,7 +165,7 @@ rotate_log $logfile
+ $PROGDIR/gen-platforms.sh \
+     $VERBOSE \
+     --arch=$(spaces_to_commas $ARCHS)  \
+-    --fast-copy > $logfile 2>&1
++    --fast-copy --minimal> $logfile 2>&1
+ fail_panic "build-platforms.sh failed. Logfile in $logfile"
+ 
+ logfile="$TOP/rebuild-all.log"
